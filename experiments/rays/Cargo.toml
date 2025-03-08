@@ -1,0 +1,8 @@
+[package]
+name = "rays"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.15", features = ["wayland", "dynamic_linking"] }
+rand = "0.9"

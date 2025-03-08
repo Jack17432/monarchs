@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 use bevy::color::palettes::basic::AQUA;
+use bevy::ecs::batching::BatchingStrategy;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::Rng;
@@ -19,7 +20,11 @@ const BOID_VEL_LIMIT: f32 = 500.0;
 const BOID_MOUSE_ATTRACTION_FACTOR: f32 = 50.0;
 
 fn main() {
-    App::new().add_plugins(DefaultPlugins).add_systems(Startup, spawn_boids).add_systems(Update, (boid_rule1, boid_rule2, boid_rule3, boid_rule_follow_mouse, limit_boid_vel).chain()).insert_resource(Time::<Fixed>::from_hz(1000.0)).add_systems(FixedUpdate, update_position).run();
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_systems(Startup, spawn_boids)
+        .add_systems(Update, (boid_rule1, boid_rule2, boid_rule3, boid_rule_follow_mouse, limit_boid_vel, update_position).chain())
+        .run();
 }
 
 #[derive(Component, Debug)]
@@ -168,21 +173,23 @@ fn update_position(
     let half_width = q_window.width() / 2.0;
     let half_height = q_window.height() / 2.0;
 
-    for (mut transform, velocity) in &mut query {
-        // let mut transform: Transform = transform;
-        transform.translation += velocity.0 * time.delta_secs();
-        transform.rotation = Quat::from_rotation_z(-velocity.0.x.atan2(velocity.0.y));
+    query
+        .par_iter_mut()
+        .batching_strategy(BatchingStrategy::fixed(32))
+        .for_each(|(mut transform, velocity)| {
+            transform.translation += velocity.0 * time.delta_secs();
+            transform.rotation = Quat::from_rotation_z(-velocity.0.x.atan2(velocity.0.y));
 
-        if transform.translation.x > half_width {
-            transform.translation.x -= q_window.width();
-        } else if transform.translation.x < -half_width {
-            transform.translation.x += q_window.width();
-        }
+            if transform.translation.x > half_width {
+                transform.translation.x -= q_window.width();
+            } else if transform.translation.x < -half_width {
+                transform.translation.x += q_window.width();
+            }
 
-        if transform.translation.y > half_height {
-            transform.translation.y -= q_window.height();
-        } else if transform.translation.y < -half_height {
-            transform.translation.y += q_window.height();
-        }
-    }
+            if transform.translation.y > half_height {
+                transform.translation.y -= q_window.height();
+            } else if transform.translation.y < -half_height {
+                transform.translation.y += q_window.height();
+            }
+        });
 }
