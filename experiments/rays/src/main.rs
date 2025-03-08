@@ -1,12 +1,7 @@
 use std::f32::consts::*;
 
-use bevy::color::palettes::basic::{AQUA, GREEN, RED, WHITE};
-use bevy::ecs::observer::TriggerTargets;
-use bevy::math::bounding::Aabb3d;
-use bevy::picking::mesh_picking::ray_cast::{ray_aabb_intersection_3d, ray_mesh_intersection};
+use bevy::color::palettes::basic::{GREEN, WHITE};
 use bevy::prelude::*;
-use bevy::render::primitives::Aabb;
-use bevy::render::render_resource::TextureViewDimension::Cube;
 
 fn main() {
     App::new()
@@ -23,14 +18,14 @@ fn ray_cast(
 ) {
     gizmos.sphere(Isometry3d::IDENTITY, 0.1, WHITE);
 
-    let ray = Ray3d::new(Vec3::ZERO, Dir3::X);
-
     let mut config = RayCastSettings::default();
 
     let binding = |entity: Entity| { team_a_query.contains(entity) };
     config.filter = &binding;
 
-    let mut rays = Vec::new();
+    let mut rays = vec![
+        Ray3d::new(Vec3::ZERO, Dir3::Y),
+    ];
     let phi: f32 = PI * ((5.0_f32.sqrt()) - 1.0);
 
     for idx in 0..1000 {
@@ -41,7 +36,7 @@ fn ray_cast(
         let x = f32::cos(theta) * r;
         let z = f32::sin(theta) * r;
 
-        rays.push(Ray3d::new(Vec3::ZERO, Dir3::from_xyz(x, y, z).unwrap()));
+        rays.push(Ray3d::new(Vec3::ZERO, Dir3::new_unchecked(Vec3::new(x, y, z).normalize())));
     }
 
     for ray in rays {
@@ -53,10 +48,6 @@ fn ray_cast(
         } else {}
     }
 }
-
-const SHAPES_X_EXTENT: f32 = 14.0;
-const EXTRUSION_X_EXTENT: f32 = 16.0;
-const Z_EXTENT: f32 = 5.0;
 
 #[derive(Component)]
 struct ATeam;
@@ -93,12 +84,12 @@ fn setup(
 
     commands
         .spawn((
-            Mesh3d(meshes.add(Cuboid::default())),
+            Mesh3d(meshes.add(Cuboid::new(5.0, 1.0, 1.0))),
             MeshMaterial3d(white_matl.clone()),
             Transform::from_xyz(
                 0.0,
+                2.0,
                 0.0,
-                -2.0,
             ),
             ATeam,
         ));
