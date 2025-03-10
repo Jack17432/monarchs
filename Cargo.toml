@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "experiments/boids", "experiments/game_of_life", "experiments/moving", "experiments/rays", "monarchs"]
+members = [ "experiments/boids", "experiments/game_of_life", "experiments/moving", "experiments/rays", "experiments/verlet", "monarchs"]
 
 [profile.dev]
 opt-level = 1

@@ -18,16 +18,16 @@ fn ray_cast(
 ) {
     gizmos.sphere(Isometry3d::IDENTITY, 0.1, WHITE);
 
-    let mut config = RayCastSettings::default();
+    let ray_filter = |entity: Entity| { team_a_query.contains(entity) };
+    let stop_on_first = |_| true;
+    let obj_vis = RayCastVisibility::Any;
+    let config = RayCastSettings::default()
+        .with_filter(&ray_filter)
+        .with_early_exit_test(&stop_on_first)
+        .with_visibility(obj_vis);
 
-    let binding = |entity: Entity| { team_a_query.contains(entity) };
-    config.filter = &binding;
-
-    let mut rays = vec![
-        Ray3d::new(Vec3::ZERO, Dir3::Y),
-    ];
+    let mut rays = Vec::new();
     let phi: f32 = PI * ((5.0_f32.sqrt()) - 1.0);
-
     for idx in 0..1000 {
         let y = 1.0 - (idx as f32 / (1000.0 - 1.0)) * 2.0;
         let r = (1.0 - y * y).sqrt();
@@ -69,6 +69,7 @@ fn setup(
                 0.0,
             ),
             ATeam,
+            Visibility::Hidden,
         ));
 
     commands
@@ -89,6 +90,18 @@ fn setup(
             Transform::from_xyz(
                 0.0,
                 2.0,
+                0.0,
+            ),
+            ATeam,
+        ));
+
+    commands
+        .spawn((
+            Mesh3d(meshes.add(Cuboid::new(5.0, 1.0, 3.0))),
+            MeshMaterial3d(white_matl.clone()),
+            Transform::from_xyz(
+                0.0,
+                -3.0,
                 0.0,
             ),
             ATeam,
