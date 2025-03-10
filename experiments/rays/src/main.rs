@@ -30,7 +30,7 @@ fn ray_cast(
 
     for idx in 0..1000 {
         let y = 1.0 - (idx as f32 / (1000.0 - 1.0)) * 2.0;
-        let r = 1.0;
+        let r = (1.0 - y * y).sqrt();
 
         let theta = phi * idx as f32;
         let x = f32::cos(theta) * r;
