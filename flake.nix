@@ -41,6 +41,12 @@
                     xorg.libX11 xorg.libXcursor xorg.libXi xorg.libXrandr
                     libxkbcommon wayland
                 ]);
+
+                env.RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+                shellHook = ''
+                    export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin
+                    export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-x86_64-unknown-linux-gnu/bin/
+                '';
             };
         });
 }

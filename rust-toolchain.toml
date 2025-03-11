@@ -1,3 +1,3 @@
 [toolchain]
 channel = "nightly"
-components = [ "rustc", "rustc-codegen-cranelift-preview" ]
+components = ["rust-src", "rustc", "rustc-codegen-cranelift-preview", "rust-std", "rustfmt", "clippy", "rust-docs"]
