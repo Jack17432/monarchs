@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-
-use verlet::{Velocity, VerletIntegrationPlugin, VerletObject};
+use physics::*;
 
 fn main() {
     App::new()
@@ -17,11 +16,30 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let white_matl = materials.add(Color::WHITE);
+    let radius = 0.1;
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
+        Mesh3d(meshes.add(Sphere::new(radius))),
         MeshMaterial3d(white_matl.clone()),
         Velocity::new(Vec3::new(4.0, 2.0, 0.0)),
-        VerletObject,
+        Transform::from_xyz(-4., 0., 0.),
+        PhysicsObject,
+        Collider::new(radius),
+    ));
+    commands.spawn((
+        Mesh3d(meshes.add(Sphere::new(radius))),
+        MeshMaterial3d(white_matl.clone()),
+        Velocity::new(Vec3::new(-4.0, 2.0, 0.0)),
+        Transform::from_xyz(4., 0., 0.),
+        PhysicsObject,
+        Collider::new(radius),
+    ));
+    commands.spawn((
+        Mesh3d(meshes.add(Sphere::new(radius))),
+        MeshMaterial3d(white_matl.clone()),
+        Velocity::new(Vec3::new(4.0, -2.0, 0.0)),
+        Transform::from_xyz(-4., 2., 0.),
+        PhysicsObject,
+        Collider::new(radius),
     ));
 
     // Light
@@ -45,13 +63,13 @@ fn setup(
 
 fn toggle_running(
     input: Res<ButtonInput<KeyCode>>,
-    current_state: Res<State<verlet::State>>,
-    mut next_state: ResMut<NextState<verlet::State>>,
+    current_state: Res<State<PhysicsState>>,
+    mut next_state: ResMut<NextState<PhysicsState>>,
 ) {
     if input.just_pressed(KeyCode::Space) {
         next_state.set(match current_state.get() {
-            verlet::State::Running => verlet::State::Paused,
-            verlet::State::Paused => verlet::State::Running,
+            PhysicsState::Running => PhysicsState::Paused,
+            PhysicsState::Paused => PhysicsState::Running,
         });
     }
 }
