@@ -4,6 +4,7 @@ use bevy_framepace::FramepacePlugin;
 use bevy_obj::ObjPlugin;
 use monarchs::GameState;
 use monarchs::debug_tools::*;
+use monarchs::world::WorldPlugin;
 
 fn main() {
     App::new()
@@ -12,6 +13,7 @@ fn main() {
         .add_plugins(FramepacePlugin)
         .add_plugins(ObjPlugin)
         .add_plugins(DebugTools)
+        .add_plugins(WorldPlugin)
         .init_state::<GameState>()
         .add_systems(Startup, (setup_camera, setup_player))
         .add_systems(Update, (update_camera, change_body))
