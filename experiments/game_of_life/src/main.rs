@@ -19,8 +19,19 @@ fn main() {
         .init_state::<AppState>()
         .insert_resource(Time::<Fixed>::from_seconds(0.5))
         .add_systems(Startup, setup)
-        .add_systems(Update, (update_img, game_state_keyboard, reset_game_state, mouse_click))
-        .add_systems(FixedUpdate, step_game_of_life.run_if(in_state(AppState::Running)))
+        .add_systems(
+            Update,
+            (
+                update_img,
+                game_state_keyboard,
+                reset_game_state,
+                mouse_click,
+            ),
+        )
+        .add_systems(
+            FixedUpdate,
+            step_game_of_life.run_if(in_state(AppState::Running)),
+        )
         .add_systems(OnEnter(AppState::Running), on_play)
         .add_systems(OnEnter(AppState::Paused), on_pause)
         .run();
@@ -45,10 +56,7 @@ struct MainCamera;
 #[derive(Component)]
 struct StateDisplay;
 
-fn setup(
-    mut commands: Commands,
-    mut images: ResMut<Assets<Image>>,
-) {
+fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     commands.spawn((Camera2d, MainCamera));
 
     let mut image = Image::new_fill(
@@ -73,25 +81,26 @@ fn setup(
         Transform::default().with_scale(Vec3::splat(IMG_SCALE)),
     ));
 
-    commands.insert_resource(GridResource {
-        grid,
-        img_handle,
-    });
+    commands.insert_resource(GridResource { grid, img_handle });
 
     commands.spawn((
-        Text::new(format!("\
+        Text::new(format!(
+            "\
 This is conways game of life, There are 4 rules\n\
 - Cells need > {:?} or < {:?} neighbors\n\
 - If {:?} neighbors, turn on\n\
-- Else stay the same", 
-        MIN_NEIGHBORS_GAME_OF_LIFE - 1, MAX_NEIGHBORS_GAME_OF_LIFE + 1, RESPAWN_NEIGHBORS_GAME_OF_LIFE)),
+- Else stay the same",
+            MIN_NEIGHBORS_GAME_OF_LIFE - 1,
+            MAX_NEIGHBORS_GAME_OF_LIFE + 1,
+            RESPAWN_NEIGHBORS_GAME_OF_LIFE
+        )),
         Node {
             position_type: PositionType::Absolute,
             top: Val::Px(12.0),
             left: Val::Px(12.0),
             ..default()
-        })
-    );
+        },
+    ));
 
     commands.spawn((
         Text::new("Space - Play / Pause\nR - Resets and spawns glider\nC - Clears the screen\nLeft mouse - add cell\nRight mouse - remove cell"),
@@ -182,7 +191,8 @@ fn mouse_click(
         let (camera, camera_transform) = q_camera.single();
         let window = q_window.single();
 
-        if let Some(world_position) = window.cursor_position()
+        if let Some(world_position) = window
+            .cursor_position()
             .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok())
             .map(|ray| ray.origin.truncate())
         {
@@ -202,19 +212,20 @@ fn mouse_click(
     }
 }
 
-fn update_img(
-    grid: Res<GridResource>,
-    mut images: ResMut<Assets<Image>>,
-) {
+fn update_img(grid: Res<GridResource>, mut images: ResMut<Assets<Image>>) {
     let image = images.get_mut(&grid.img_handle).expect("Image not found");
 
     for x in 1..grid.grid.len() - 1 {
         let row = &grid.grid[x];
         for y in 1..row.len() - 1 {
             if row[y] {
-                image.set_color_at(x as u32 - 1, y as u32 - 1, Color::from(Color::WHITE)).unwrap()
+                image
+                    .set_color_at(x as u32 - 1, y as u32 - 1, Color::from(Color::WHITE))
+                    .unwrap()
             } else {
-                image.set_color_at(x as u32 - 1, y as u32 - 1, Color::from(Color::BLACK)).unwrap()
+                image
+                    .set_color_at(x as u32 - 1, y as u32 - 1, Color::from(Color::BLACK))
+                    .unwrap()
             }
         }
     }
@@ -225,14 +236,14 @@ fn step_game_of_life(mut grid: ResMut<GridResource>) {
 
     for x in 1..grid.grid.len() - 1 {
         for y in 1..grid.grid[x].len() - 1 {
-            let neighbor_count = grid.grid[x - 1][y - 1] as usize +
-                grid.grid[x - 1][y] as usize +
-                grid.grid[x - 1][y + 1] as usize +
-                grid.grid[x][y - 1] as usize +
-                grid.grid[x][y + 1] as usize +
-                grid.grid[x + 1][y - 1] as usize +
-                grid.grid[x + 1][y] as usize +
-                grid.grid[x + 1][y + 1] as usize;
+            let neighbor_count = grid.grid[x - 1][y - 1] as usize
+                + grid.grid[x - 1][y] as usize
+                + grid.grid[x - 1][y + 1] as usize
+                + grid.grid[x][y - 1] as usize
+                + grid.grid[x][y + 1] as usize
+                + grid.grid[x + 1][y - 1] as usize
+                + grid.grid[x + 1][y] as usize
+                + grid.grid[x + 1][y + 1] as usize;
 
             if neighbor_count < MIN_NEIGHBORS_GAME_OF_LIFE {
                 new_grid[x][y] = false;

@@ -8,9 +8,11 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::Rng;
 
-const BOID_TRIG: Triangle2d = Triangle2d::new(Vec2::new(0.0, 15.0),
-                                              Vec2::new(10.0, -15.0),
-                                              Vec2::new(-10.0, -15.0));
+const BOID_TRIG: Triangle2d = Triangle2d::new(
+    Vec2::new(0.0, 15.0),
+    Vec2::new(10.0, -15.0),
+    Vec2::new(-10.0, -15.0),
+);
 const NUM_OF_BOIDS: usize = 100;
 const BOID_REPULSE_RANGE: f32 = 50.0;
 const BOIDS_RULE1_FACTOR: f32 = 100.0;
@@ -23,7 +25,18 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, spawn_boids)
-        .add_systems(Update, (boid_rule1, boid_rule2, boid_rule3, boid_rule_follow_mouse, limit_boid_vel, update_position).chain())
+        .add_systems(
+            Update,
+            (
+                boid_rule1,
+                boid_rule2,
+                boid_rule3,
+                boid_rule_follow_mouse,
+                limit_boid_vel,
+                update_position,
+            )
+                .chain(),
+        )
         .run();
 }
 
@@ -51,24 +64,23 @@ fn spawn_boids(
     for _ in 0..NUM_OF_BOIDS {
         commands.spawn((
             Velocity(Vec3::new(0.0, 0.0, 0.0)),
-            Transform::from_xyz(rng.random_range(-half_width..half_width) as f32,
-                                rng.random_range(-half_height..half_height) as f32,
-                                0.0),
+            Transform::from_xyz(
+                rng.random_range(-half_width..half_width) as f32,
+                rng.random_range(-half_height..half_height) as f32,
+                0.0,
+            ),
             Mesh2d(meshes.add(BOID_TRIG)),
             MeshMaterial2d(materials.add(Color::from(AQUA))),
-            Boid
+            Boid,
         ));
     }
 }
 
-fn boid_rule1(
-    mut query: Query<(Entity, &mut Velocity, &Transform), With<Boid>>,
-) {
+fn boid_rule1(mut query: Query<(Entity, &mut Velocity, &Transform), With<Boid>>) {
     let mut collector: HashMap<Entity, Vec3> = HashMap::new();
     let mut iter = query.iter_combinations_mut();
 
-    while let Some([(entity1, _, transform1),
-                   (entity2, _, transform2)]) = iter.fetch_next() {
+    while let Some([(entity1, _, transform1), (entity2, _, transform2)]) = iter.fetch_next() {
         if !collector.contains_key(&entity1) {
             collector.try_insert(entity1.clone(), Vec3::ZERO).unwrap();
         }
@@ -82,18 +94,16 @@ fn boid_rule1(
 
     for (entity, mut vel, transform) in query.iter_mut() {
         let transform_target = collector.get(&entity).unwrap();
-        vel.0 += ((transform_target / NUM_OF_BOIDS as f32) - transform.translation) / BOIDS_RULE1_FACTOR;
+        vel.0 +=
+            ((transform_target / NUM_OF_BOIDS as f32) - transform.translation) / BOIDS_RULE1_FACTOR;
     }
 }
 
-fn boid_rule2(
-    mut query: Query<(Entity, &mut Velocity, &Transform), With<Boid>>,
-) {
+fn boid_rule2(mut query: Query<(Entity, &mut Velocity, &Transform), With<Boid>>) {
     let mut collector: HashMap<Entity, Vec3> = HashMap::new();
 
     let mut iter = query.iter_combinations_mut();
-    while let Some([(entity1, _, transform1),
-                   (entity2, _, transform2)]) = iter.fetch_next() {
+    while let Some([(entity1, _, transform1), (entity2, _, transform2)]) = iter.fetch_next() {
         if !collector.contains_key(&entity1) {
             collector.try_insert(entity1.clone(), Vec3::ZERO).unwrap();
         }
@@ -101,9 +111,15 @@ fn boid_rule2(
             collector.try_insert(entity2.clone(), Vec3::ZERO).unwrap();
         }
 
-        if (transform1.translation - transform2.translation).abs().length() < BOID_REPULSE_RANGE {
-            *collector.get_mut(&entity1).unwrap() += transform1.translation - transform2.translation;
-            *collector.get_mut(&entity2).unwrap() += transform2.translation - transform1.translation;
+        if (transform1.translation - transform2.translation)
+            .abs()
+            .length()
+            < BOID_REPULSE_RANGE
+        {
+            *collector.get_mut(&entity1).unwrap() +=
+                transform1.translation - transform2.translation;
+            *collector.get_mut(&entity2).unwrap() +=
+                transform2.translation - transform1.translation;
         }
     }
 
@@ -113,14 +129,11 @@ fn boid_rule2(
     }
 }
 
-fn boid_rule3(
-    mut query: Query<(Entity, &mut Velocity, &Transform), With<Boid>>,
-) {
+fn boid_rule3(mut query: Query<(Entity, &mut Velocity, &Transform), With<Boid>>) {
     let mut collector: HashMap<Entity, Vec3> = HashMap::new();
 
     let mut iter = query.iter_combinations_mut();
-    while let Some([(entity1, velocity1, _),
-                   (entity2, velocity2, _)]) = iter.fetch_next() {
+    while let Some([(entity1, velocity1, _), (entity2, velocity2, _)]) = iter.fetch_next() {
         if !collector.contains_key(&entity1) {
             collector.try_insert(entity1.clone(), Vec3::ZERO).unwrap();
         }
@@ -147,17 +160,19 @@ fn boid_rule_follow_mouse(
     let (camera, camera_transform) = q_camera.single();
     let window = q_window.single();
 
-    if let Some(world_position) = window.cursor_position().and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok()).map(|ray| ray.origin.truncate())
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok())
+        .map(|ray| ray.origin.truncate())
     {
         for (mut velocity, transform) in &mut query {
-            velocity.0 += (Vec3::from((world_position, 0.0)) - transform.translation) / BOID_MOUSE_ATTRACTION_FACTOR;
+            velocity.0 += (Vec3::from((world_position, 0.0)) - transform.translation)
+                / BOID_MOUSE_ATTRACTION_FACTOR;
         }
     }
 }
 
-fn limit_boid_vel(
-    mut query: Query<&mut Velocity, With<Boid>>,
-) {
+fn limit_boid_vel(mut query: Query<&mut Velocity, With<Boid>>) {
     for mut velocity in &mut query {
         if velocity.0.length() > BOID_VEL_LIMIT {
             velocity.0 = (velocity.0 / velocity.0.length()) * BOID_VEL_LIMIT;

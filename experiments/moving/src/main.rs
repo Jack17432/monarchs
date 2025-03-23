@@ -33,7 +33,7 @@ fn setup(
 
 fn move_player(
     mut velocity: Single<&mut Velocity, With<Player>>,
-    keyboard: Res<ButtonInput<KeyCode>>
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
     if keyboard.pressed(KeyCode::KeyW) {
         velocity.0.y = 50.0;
@@ -52,10 +52,7 @@ fn move_player(
     }
 }
 
-fn update_positions(
-    mut query: Query<(&mut Transform, &Velocity)>,
-    time: Res<Time>,
-) {
+fn update_positions(mut query: Query<(&mut Transform, &Velocity)>, time: Res<Time>) {
     for (mut transform, velocity) in query.iter_mut() {
         transform.translation.x += velocity.0.x * time.delta_secs();
         transform.translation.y += velocity.0.y * time.delta_secs();

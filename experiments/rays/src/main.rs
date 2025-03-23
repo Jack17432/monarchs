@@ -11,14 +11,10 @@ fn main() {
         .run();
 }
 
-fn ray_cast(
-    mut gizmos: Gizmos,
-    team_a_query: Query<(), With<ATeam>>,
-    mut ray_cast: MeshRayCast,
-) {
+fn ray_cast(mut gizmos: Gizmos, team_a_query: Query<(), With<ATeam>>, mut ray_cast: MeshRayCast) {
     gizmos.sphere(Isometry3d::IDENTITY, 0.1, WHITE);
 
-    let ray_filter = |entity: Entity| { team_a_query.contains(entity) };
+    let ray_filter = |entity: Entity| team_a_query.contains(entity);
     let stop_on_first = |_| true;
     let obj_vis = RayCastVisibility::Any;
     let config = RayCastSettings::default()
@@ -36,16 +32,17 @@ fn ray_cast(
         let x = f32::cos(theta) * r;
         let z = f32::sin(theta) * r;
 
-        rays.push(Ray3d::new(Vec3::ZERO, Dir3::new_unchecked(Vec3::new(x, y, z).normalize())));
+        rays.push(Ray3d::new(
+            Vec3::ZERO,
+            Dir3::new_unchecked(Vec3::new(x, y, z).normalize()),
+        ));
     }
 
     for ray in rays {
-        if let Some((_, hit)) = ray_cast
-            .cast_ray(ray, &config)
-            .first()
-        {
+        if let Some((_, hit)) = ray_cast.cast_ray(ray, &config).first() {
             gizmos.line(Vec3::ZERO, hit.point, GREEN);
-        } else {}
+        } else {
+        }
     }
 }
 
@@ -59,53 +56,33 @@ fn setup(
 ) {
     let white_matl = materials.add(Color::WHITE);
 
-    commands
-        .spawn((
-            Mesh3d(meshes.add(Cuboid::default())),
-            MeshMaterial3d(white_matl.clone()),
-            Transform::from_xyz(
-                2.0,
-                0.0,
-                0.0,
-            ),
-            ATeam,
-            Visibility::Hidden,
-        ));
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::default())),
+        MeshMaterial3d(white_matl.clone()),
+        Transform::from_xyz(2.0, 0.0, 0.0),
+        ATeam,
+        Visibility::Hidden,
+    ));
 
-    commands
-        .spawn((
-            Mesh3d(meshes.add(Cuboid::default())),
-            MeshMaterial3d(white_matl.clone()),
-            Transform::from_xyz(
-                -2.0,
-                0.0,
-                0.0,
-            ),
-        ));
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::default())),
+        MeshMaterial3d(white_matl.clone()),
+        Transform::from_xyz(-2.0, 0.0, 0.0),
+    ));
 
-    commands
-        .spawn((
-            Mesh3d(meshes.add(Cuboid::new(5.0, 1.0, 1.0))),
-            MeshMaterial3d(white_matl.clone()),
-            Transform::from_xyz(
-                0.0,
-                2.0,
-                0.0,
-            ),
-            ATeam,
-        ));
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::new(5.0, 1.0, 1.0))),
+        MeshMaterial3d(white_matl.clone()),
+        Transform::from_xyz(0.0, 2.0, 0.0),
+        ATeam,
+    ));
 
-    commands
-        .spawn((
-            Mesh3d(meshes.add(Cuboid::new(5.0, 1.0, 3.0))),
-            MeshMaterial3d(white_matl.clone()),
-            Transform::from_xyz(
-                0.0,
-                -3.0,
-                0.0,
-            ),
-            ATeam,
-        ));
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::new(5.0, 1.0, 3.0))),
+        MeshMaterial3d(white_matl.clone()),
+        Transform::from_xyz(0.0, -3.0, 0.0),
+        ATeam,
+    ));
 
     // Light
     commands.spawn((
