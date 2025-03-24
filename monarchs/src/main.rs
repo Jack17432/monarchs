@@ -1,10 +1,11 @@
+use bevy::input::gamepad::GamepadAxisChangedEvent;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
 use bevy_obj::ObjPlugin;
-use monarchs::GameState;
 use monarchs::debug_tools::*;
 use monarchs::world::WorldPlugin;
+use monarchs::{GameState, LookDirection};
 
 fn main() {
     App::new()
@@ -16,7 +17,7 @@ fn main() {
         .add_plugins(WorldPlugin)
         .init_state::<GameState>()
         .add_systems(Startup, (setup_camera, setup_player))
-        .add_systems(Update, (update_camera, change_body))
+        .add_systems(Update, (update_camera, change_body, update_look_gamepad))
         .run();
 }
 
@@ -52,7 +53,7 @@ fn setup_player(
     let body_cube = commands
         .spawn((
             PlayerBody { active: true },
-            ShowAxes,
+            DebugShowAxes,
             Visibility::Inherited,
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(StandardMaterial {
@@ -66,13 +67,19 @@ fn setup_player(
         .spawn((
             PlayerBody { active: false },
             Visibility::Hidden,
-            ShowAxes,
+            DebugShowAxes,
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
         ))
         .id();
 
     commands
-        .spawn((Player, Transform::default(), Visibility::Visible))
+        .spawn((
+            Player,
+            LookDirection(Quat::IDENTITY),
+            Transform::default(),
+            Visibility::Visible,
+            DebugShowLookingDir,
+        ))
         .add_children(&mut [body_cube, body_donut]);
 }
 
@@ -80,9 +87,9 @@ fn update_camera(
     mut player_camera: Single<&mut Transform, (With<PlayerCamera>, Without<Player>)>,
     player: Single<&Transform, (With<Player>, Without<PlayerCamera>)>,
 ) {
-    player_camera.translation = player.translation + Vec3::new(0.0, -5.0, 2.5);
+    player_camera.translation = player.translation + Vec3::new(-5.0, 0.0, 2.5);
     player_camera.look_at(player.translation, Dir3::Z);
-    player_camera.translation += Vec3::new(0.5, 0.0, 0.5);
+    player_camera.translation += Vec3::new(0.0, -0.5, 0.5);
 }
 
 fn change_body(
@@ -103,4 +110,22 @@ fn change_body(
             }
         }
     }
+}
+
+fn update_look_gamepad(
+    mut q_player: Query<&mut LookDirection, With<Player>>,
+    q_controller: Single<&Gamepad>,
+    time: Res<Time>,
+) {
+    let dead_zone = 0.1;
+
+    let x = q_controller.right_stick().x;
+    let y = q_controller.right_stick().y;
+
+    let mut rotation = Vec2::ZERO;
+    if x.abs() > dead_zone || y.abs() > dead_zone {
+        rotation = Vec2::new(x, y);
+    }
+
+
 }
