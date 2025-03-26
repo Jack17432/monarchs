@@ -1,5 +1,6 @@
-pub mod debug_tools;
-pub mod world;
+pub mod debug;
+pub mod environment;
+pub mod core;
 
 use bevy::prelude::*;
 
