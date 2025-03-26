@@ -3,7 +3,12 @@ use bevy::prelude::*;
 
 #[derive(Component, Debug)]
 #[require(Transform, Velocity, Acceleration)]
+#[derive(Default)]
 pub struct PhysicsObject;
+
+#[derive(Component, Debug)]
+#[require(PhysicsObject)]
+pub struct StaticPhysicsObject;
 
 #[derive(Default, Component, Debug, Clone, PartialEq)]
 pub struct Velocity(pub Vec3);
@@ -20,7 +25,10 @@ impl Plugin for PhysicsPlugin {
 }
 
 fn velocity_step(
-    mut q_objects: Query<(&mut Transform, &mut Velocity, &mut Acceleration), With<PhysicsObject>>,
+    mut q_objects: Query<
+        (&mut Transform, &mut Velocity, &mut Acceleration),
+        (With<PhysicsObject>, Without<StaticPhysicsObject>),
+    >,
     time: Res<Time>,
 ) {
     q_objects
