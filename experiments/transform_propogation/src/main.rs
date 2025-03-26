@@ -38,19 +38,14 @@ fn setup(
         .add_child(child_a);
 }
 
-fn draw_gizmo(
-    mut gizmos: Gizmos,
-    query: Query<&GlobalTransform>,
-) {
+fn draw_gizmo(mut gizmos: Gizmos, query: Query<&GlobalTransform>) {
     for global_transform in &query {
         let length = 2.0;
         gizmos.axes(*global_transform, length);
     }
 }
 
-fn update_obj(
-    mut q_object: Single<&mut Transform, With<Object>>,
-) {
+fn update_obj(mut q_object: Single<&mut Transform, With<Object>>) {
     q_object.translation += Vec3::new(1.0, 1.0, 0.0);
 }
 

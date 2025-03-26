@@ -1,4 +1,3 @@
-use bevy::input::gamepad::{GamepadAxisChangedEvent, GamepadButtonChangedEvent, GamepadInput};
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
@@ -6,23 +5,24 @@ use bevy_obj::ObjPlugin;
 use monarchs::core::*;
 use monarchs::debug::*;
 use monarchs::environment::*;
-use monarchs::{GameState, LookDirection};
+use monarchs::views::CameraPlugin;
+use monarchs::{GameState, LookDirection, Player};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
-        // .add_plugins(FramepacePlugin)
+        .add_plugins(FramepacePlugin)
         .add_plugins(ObjPlugin)
         .add_plugins(DebugTools)
         .add_plugins(WorldPlugin)
-        // .add_plugins(PhysicsPlugin)
+        .add_plugins(PhysicsPlugin)
+        .add_plugins(CameraPlugin)
         .init_state::<GameState>()
-        .add_systems(Startup, (setup_camera, setup_player))
+        .add_systems(Startup, setup_player)
         .add_systems(
             Update,
             (
-                update_camera,
                 change_body_keyboard,
                 change_body_controller,
                 update_look_gamepad,
@@ -33,27 +33,8 @@ fn main() {
 }
 
 #[derive(Component)]
-struct Player;
-
-#[derive(Component)]
 struct PlayerBody {
     active: bool,
-}
-
-#[derive(Component)]
-#[require(Camera3d)]
-struct PlayerCamera;
-
-fn setup_camera(mut commands: Commands) {
-    commands.spawn((
-        PointLight {
-            shadows_enabled: true,
-            ..default()
-        },
-        Transform::from_xyz(4.0, 8.0, 4.0),
-    ));
-
-    commands.spawn(PlayerCamera);
 }
 
 fn setup_player(
@@ -65,7 +46,6 @@ fn setup_player(
         .spawn((
             PlayerBody { active: true },
             Visibility::Inherited,
-            DebugShowAxes,
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(StandardMaterial {
                 base_color_texture: Some(asset_server.load("textures/Grass.png")),
@@ -73,15 +53,16 @@ fn setup_player(
             })),
         ))
         .id();
+    info!(id = ?body_cube, "Cube entity spawned");
 
     let body_donut = commands
         .spawn((
             PlayerBody { active: false },
             Visibility::Hidden,
-            DebugShowAxes,
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
         ))
         .id();
+    info!(id = ?body_donut, "donut entity spawned");
 
     commands
         .spawn((
@@ -96,19 +77,6 @@ fn setup_player(
         .add_children(&mut [body_cube, body_donut]);
 }
 
-fn update_camera(
-    mut player_camera: Single<&mut Transform, (With<PlayerCamera>, Without<Player>)>,
-    player: Single<(&GlobalTransform, &LookDirection), (With<Player>, Without<PlayerCamera>)>,
-) {
-    let (global_transform, look_direction) = *player;
-
-    player_camera.translation =
-        global_transform.translation() + (look_direction.0 * Vec3::new(-5.0, -0.5, 3.0));
-
-    let forward = (look_direction.0 * Vec3::X).normalize();
-    player_camera.look_at(global_transform.translation() + forward, Dir3::Z);
-}
-
 fn change_body_keyboard(
     player: Single<&Children, (With<Player>, Without<PlayerBody>)>,
     mut body: Query<(&mut Visibility, &mut PlayerBody), Without<Player>>,
@@ -116,7 +84,9 @@ fn change_body_keyboard(
 ) {
     if keyboard.just_pressed(KeyCode::KeyQ) {
         for &child in player.iter() {
-            let (mut visibility, mut body) = body.get_mut(child).unwrap();
+            let Ok((mut visibility, mut body)) = body.get_mut(child) else {
+                continue;
+            };
 
             if body.active {
                 *visibility = Visibility::Hidden;
@@ -131,12 +101,14 @@ fn change_body_keyboard(
 
 fn change_body_controller(
     player: Single<&Children, (With<Player>, Without<PlayerBody>)>,
-    mut body: Query<(&mut Visibility, &mut PlayerBody), Without<Player>>,
+    mut body: Query<(&mut Visibility, &mut PlayerBody), (With<PlayerBody>, Without<Player>)>,
     controller: Single<&Gamepad>,
 ) {
     if controller.just_pressed(GamepadButton::DPadDown) {
         for &child in player.iter() {
-            let (mut visibility, mut body) = body.get_mut(child).unwrap();
+            let Ok((mut visibility, mut body)) = body.get_mut(child) else {
+                continue;
+            };
 
             if body.active {
                 *visibility = Visibility::Hidden;
@@ -159,24 +131,22 @@ fn move_controller(
     let mut y = q_controller.left_stick().x;
     let mut x = q_controller.left_stick().y;
 
-    // if x.abs() < dead_zone && y.abs() < dead_zone {
-    //     return;
-    // }
-    //
-    // if x.abs() < dead_zone {
-    //     x = 0.0;
-    // }
-    //
-    // if y.abs() < dead_zone {
-    //     y = 0.0;
-    // }
+    if x.abs() < dead_zone && y.abs() < dead_zone {
+        return;
+    }
+
+    if x.abs() < dead_zone {
+        x = 0.0;
+    }
+
+    if y.abs() < dead_zone {
+        y = 0.0;
+    }
 
     let y_look_amount = look_direction.0.to_euler(EulerRot::XYZ).2;
 
     let change_by = Quat::from_rotation_z(y_look_amount) * Vec3::new(x, -y, 0.0);
     transform.translation += change_by;
-
-    // info!(entity = ?entity, change = ?change_by, transform = ?transform);
 }
 
 fn update_look_gamepad(
@@ -185,7 +155,7 @@ fn update_look_gamepad(
     time: Res<Time>,
 ) {
     let dead_zone = 0.1;
-    let sensitivity = 0.5;
+    let sensitivity = 0.75;
 
     let mut x = q_controller.right_stick().x;
     let mut y = q_controller.right_stick().y;

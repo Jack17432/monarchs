@@ -26,10 +26,18 @@ fn create_flat(
                 MeshMaterial3d(materials.add(StandardMaterial {
                     base_color_texture: Some(grass_texture.clone()),
                     ..default()
-                }))
+                })),
             ));
         }
     }
 
     commands.spawn_batch(cube_batch);
+
+    commands.spawn((
+        PointLight {
+            shadows_enabled: true,
+            ..default()
+        },
+        Transform::from_xyz(4.0, 8.0, 4.0),
+    ));
 }
