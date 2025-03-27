@@ -68,11 +68,18 @@ fn setup_player(
         .spawn((
             Player,
             LookDirection(Quat::IDENTITY),
-            Transform::default(),
-            PhysicsObject,
             Visibility::Visible,
             DebugShowAxes,
             DebugShowLookingDir,
+
+            PhysicsBundle {
+                transform: Transform::default(),
+                velocity: Velocity(Vec3::ZERO),
+                acceleration: Acceleration(Vec3::ZERO),
+                forces: Forces(Vec3::ZERO),
+                damping: Damping(0.995),
+                mass: Mass::new(60.0),
+            },
         ))
         .add_children(&mut [body_cube, body_donut]);
 }
@@ -123,8 +130,12 @@ fn change_body_controller(
 
 fn move_controller(
     mut q_player: Query<(&mut Transform, &LookDirection), With<Player>>,
-    q_controller: Single<&Gamepad>,
+    q_controller: Option<Single<&Gamepad>>,
 ) {
+    let Some(q_controller) = q_controller else {
+        return;
+    };
+
     let dead_zone = 0.1;
 
     let (mut transform, look_direction) = q_player.single_mut();
@@ -151,11 +162,15 @@ fn move_controller(
 
 fn update_look_gamepad(
     mut q_player: Single<&mut LookDirection, With<Player>>,
-    q_controller: Single<&Gamepad>,
+    q_controller: Option<Single<&Gamepad>>,
     time: Res<Time>,
 ) {
+    let Some(q_controller) = q_controller else {
+        return;
+    };
+
     let dead_zone = 0.1;
-    let sensitivity = 0.75;
+    let sensitivity = 2.0;
 
     let mut x = q_controller.right_stick().x;
     let mut y = q_controller.right_stick().y;
