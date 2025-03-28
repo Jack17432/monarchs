@@ -7,15 +7,18 @@ use monarchs::debug::*;
 use monarchs::environment::*;
 use monarchs::views::CameraPlugin;
 use monarchs::{GameState, LookDirection, Player};
+use monarchs::core::collision::{Collider, CollisionPlugin};
 
 fn main() {
     App::new()
+        .insert_resource(Time::<Fixed>::from_hz(100.0))
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
         .add_plugins(FramepacePlugin)
         .add_plugins(ObjPlugin)
         .add_plugins(DebugTools)
         .add_plugins(WorldPlugin)
+        .add_plugins(CollisionPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(CameraPlugin)
         .init_state::<GameState>()
@@ -71,9 +74,10 @@ fn setup_player(
             Visibility::Visible,
             DebugShowAxes,
             DebugShowLookingDir,
+            Collider::from_cuboid(Cuboid::new(1.0, 1.0, 1.0)),
 
             PhysicsBundle {
-                transform: Transform::default(),
+                transform: Transform::from_xyz(0.0, 0.0, 1.0),
                 velocity: Velocity(Vec3::ZERO),
                 acceleration: Acceleration(Vec3::ZERO),
                 forces: Forces(Vec3::ZERO),
