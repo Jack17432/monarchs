@@ -5,17 +5,15 @@ use bevy_obj::ObjPlugin;
 use monarchs::config::ConfigPlugin;
 use monarchs::controllers::ControllerPluginGroup;
 use monarchs::controllers::player::{Player, PlayerControlled};
-use monarchs::core::collision::{Collider, CollisionPlugin};
-use monarchs::core::*;
 use monarchs::debug::*;
 use monarchs::environment::*;
-use monarchs::views::player_camera::PlayerCameraInfo;
 use monarchs::views::player_camera::*;
 use monarchs::views::*;
 use monarchs::void_born::VoidBornPlugin;
 use monarchs::void_born::souls::SoulBundle;
 use monarchs::void_born::vessels::VesselBundle;
 use monarchs::{GameState, ui};
+use monarchs::core::{Collider, PhysicsObject};
 
 fn main() {
     App::new()
@@ -24,8 +22,6 @@ fn main() {
         .add_plugins(DebugTools)
         .add_plugins(ConfigPlugin)
         .add_plugins(WorldPlugin)
-        .add_plugins(CollisionPlugin)
-        .add_plugins(PhysicsPlugin)
         .add_plugins(ViewsPluginGroup)
         .add_plugins(VoidBornPlugin)
         .add_plugins(ControllerPluginGroup)
@@ -42,6 +38,9 @@ fn setup_player(
 ) {
     let cube_vessel = commands
         .spawn((
+            Transform::from_xyz(-2.0, -2.0, 1.0),
+            PhysicsObject::Dynamic,
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             PlayerControlled,
             PlayerCameraInfo(Quat::IDENTITY),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
@@ -52,33 +51,18 @@ fn setup_player(
             DebugShowAxes,
             DebugCameraPoint,
         ))
-        .insert(PhysicsBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            velocity: Velocity(Vec3::ZERO),
-            acceleration: Acceleration(Vec3::ZERO),
-            forces: Forces(Vec3::ZERO),
-            damping: Damping(0.995),
-            mass: Mass::new(60.0),
-            collider: Collider::from_cuboid(Cuboid::new(1.0, 1.0, 1.0)),
-        })
         .insert(VesselBundle::default())
         .id();
 
     let donut_vessel = commands
         .spawn((
+            Transform::from_xyz(0.0, 0.0, 1.0),
+            PhysicsObject::Dynamic,
+            Collider::from_cuboid(0.5, 0.5, 0.5),
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
             DebugShowAxes,
             DebugCameraPoint,
         ))
-        .insert(PhysicsBundle {
-            transform: Transform::from_xyz(-2.0, 2.0, 1.0),
-            velocity: Velocity(Vec3::ZERO),
-            acceleration: Acceleration(Vec3::ZERO),
-            forces: Forces(Vec3::ZERO),
-            damping: Damping(0.995),
-            mass: Mass::new(10.0),
-            collider: Collider::from_cuboid(Cuboid::new(0.3, 0.3, 0.3)),
-        })
         .insert(VesselBundle::default())
         .id();
 

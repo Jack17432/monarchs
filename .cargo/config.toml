@@ -1,9 +1,17 @@
-[unstable]
-codegen-backend = true
+#[unstable]
+#codegen-backend = true
+#
+#[profile.dev]
+#codegen-backend = "cranelift"
+#
+#[profile.dev.package."*"]
+#codegen-backend = "llvm"
 
-[profile.dev]
-codegen-backend = "cranelift"
+# for Linux
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
-[profile.dev.package."*"]
-codegen-backend = "llvm"
-
+# for Windows
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld.exe"

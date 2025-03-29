@@ -1,101 +1,38 @@
-pub mod collision;
-
-use crate::core::collision::{sat_collider_detection, Collider};
 use bevy::prelude::*;
+use parry3d::math::Point;
+use parry3d::na::Vector;
 
-pub struct PhysicsPlugin;
+pub mod solver;
 
-impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(PostUpdate, integrator.after(sat_collider_detection))
-            .add_systems(PostUpdate, calculate_gravity.before(sat_collider_detection));
-    }
+#[derive(Component, Debug, Copy, Clone, Reflect, Eq, PartialEq)]
+#[require(LinerVelocity)]
+pub enum PhysicsObject {
+    Static,
+    Dynamic,
 }
 
-fn integrator(
-    mut q_objects: Query<(
-        &mut Transform,
-        &mut Velocity,
-        &Acceleration,
-        &Mass,
-        &Damping,
-        &Forces,
-    )>,
-    time: Res<Time>,
-) {
-    let time_delta = time.delta_secs();
+#[derive(Component, Debug, Copy, Clone, Reflect, PartialEq, Default)]
+pub struct LinerVelocity(pub Vec3);
 
-    q_objects.par_iter_mut().for_each(
-        |(mut transform, mut velocity, acceleration, mass, damping, forces)| {
-            transform.translation +=
-                velocity.0 * time_delta + acceleration.0 * time_delta.powi(2) * 0.5;
-
-            let mut res_accel = acceleration.0;
-            res_accel += forces.0 * mass.get_inv_mass();
-
-            velocity.0 = velocity.0 * damping.0.powf(time_delta) + acceleration.0 * time_delta;
-        },
-    )
+#[derive(Component, Debug)]
+pub struct Collider {
+    pub collider: parry3d::shape::SharedShape,
 }
 
-fn calculate_gravity(mut q_objects: Query<&mut Acceleration>) {
-    q_objects
-        .par_iter_mut()
-        .for_each(|mut acceleration| acceleration.0 = Vec3::new(0.0, 0.0, -1.0));
-}
-
-/// Unit is in **Kg**
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
-pub struct Mass {
-    mass: f32,
-    inv_mass: f32,
-}
-
-impl Mass {
-    /// Creates a new mass component in **Kg**
-    pub fn new(mass: f32) -> Self {
+impl Collider {
+    pub fn from_cuboid(half_x: f32, half_y: f32, half_z: f32) -> Self {
         Self {
-            mass,
-            inv_mass: 1.0 / mass,
+            collider: parry3d::shape::SharedShape::cuboid(half_x, half_y, half_z),
         }
     }
 
-    /// Gets mass value in **Kg**
-    fn get_mass(&self) -> f32 {
-        self.mass
+    pub fn from_capsule(a: Vec3, b: Vec3, radius: f32) -> Self {
+        Self {
+            collider: parry3d::shape::SharedShape::capsule(
+                Point::from(a.to_array()),
+                Point::from(b.to_array()),
+                radius,
+            ),
+        }
     }
-
-    /// Gets 1/mass value in **Kg**
-    fn get_inv_mass(&self) -> f32 {
-        self.inv_mass
-    }
-
-    /// Sets the mass and the unit should be in **Kg**
-    fn set_mass(&mut self, mass: f32) {
-        self.mass = mass;
-        self.inv_mass = 1.0 / self.mass;
-    }
-}
-
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
-pub struct Velocity(pub Vec3);
-
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
-pub struct Acceleration(pub Vec3);
-
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
-pub struct Damping(pub f32);
-
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
-pub struct Forces(pub Vec3);
-
-#[derive(Bundle, Debug)]
-pub struct PhysicsBundle {
-    pub transform: Transform,
-    pub velocity: Velocity,
-    pub acceleration: Acceleration,
-    pub mass: Mass,
-    pub damping: Damping,
-    pub forces: Forces,
-    pub collider: Collider,
 }

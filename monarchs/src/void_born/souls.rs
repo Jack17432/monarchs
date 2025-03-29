@@ -75,7 +75,7 @@ pub struct VesselSwapEvent(pub Entity, pub Entity, pub Entity);
 pub fn vessel_swap_system(
     mut commands: Commands,
     mut e_swap: EventReader<VesselSwapEvent>,
-    mut camera: Single<Entity, With<PlayerCamera>>,
+    camera: Single<Entity, With<PlayerCamera>>,
     mut q_soul: Query<(&mut BoundToVessel, &mut NextVessel), With<Soul>>,
     mut q_vessels: Query<(&mut Transform, Has<PlayerControlled>, Option<&PlayerCameraInfo>), With<Vessel>>,
 ) {
