@@ -1,10 +1,11 @@
-use crate::{CameraLookDirection, Player};
+use crate::controllers::player::PlayerControlled;
 use bevy::prelude::*;
 
 #[derive(Component)]
 #[require(Camera3d)]
 pub struct PlayerCamera;
 
+#[derive(Debug, Default)]
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -14,7 +15,7 @@ impl Plugin for CameraPlugin {
     }
 }
 
-fn player_setup_camera(mut commands: Commands, q_player: Single<Entity, With<Player>>) {
+fn player_setup_camera(mut commands: Commands, q_player: Single<Entity, With<PlayerControlled>>) {
     let player_camera = commands.spawn(PlayerCamera).id();
     commands
         .get_entity(*q_player)
@@ -22,9 +23,9 @@ fn player_setup_camera(mut commands: Commands, q_player: Single<Entity, With<Pla
         .add_child(player_camera);
 }
 
-fn update_camera(
-    mut player_camera: Single<&mut Transform, (With<PlayerCamera>, Without<Player>)>,
-    player: Single<&CameraLookDirection, (With<Player>, Without<PlayerCamera>)>,
+pub fn update_camera(
+    mut player_camera: Single<&mut Transform, (With<PlayerCamera>, Without<PlayerControlled>)>,
+    player: Single<&PlayerCameraInfo, (With<PlayerControlled>, Without<PlayerCamera>)>,
 ) {
     let look_direction = *player;
 
@@ -33,3 +34,6 @@ fn update_camera(
     let forward = (look_direction.0 * Vec3::X).normalize();
     player_camera.look_at(forward, Dir3::Z);
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct PlayerCameraInfo(pub Quat);

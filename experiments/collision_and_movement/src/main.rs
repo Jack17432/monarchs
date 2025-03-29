@@ -2,12 +2,12 @@ use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
 use bevy_obj::ObjPlugin;
+use collision_and_movement::core::collision::{Collider, CollisionPlugin};
 use collision_and_movement::core::*;
 use collision_and_movement::debug::*;
 use collision_and_movement::environment::*;
 use collision_and_movement::views::CameraPlugin;
-use collision_and_movement::{GameState, LookDirection, Player};
-use collision_and_movement::core::collision::{Collider, CollisionPlugin};
+use collision_and_movement::{CameraLookDirection, GameState, Player};
 
 fn main() {
     App::new()
@@ -70,12 +70,11 @@ fn setup_player(
     commands
         .spawn((
             Player,
-            LookDirection(Quat::IDENTITY),
+            CameraLookDirection(Quat::IDENTITY),
             Visibility::Visible,
             DebugShowAxes,
             DebugShowLookingDir,
             Collider::from_cuboid(Cuboid::new(1.0, 1.0, 1.0)),
-
             PhysicsBundle {
                 transform: Transform::from_xyz(0.0, 0.0, 1.0),
                 velocity: Velocity(Vec3::ZERO),
@@ -133,7 +132,7 @@ fn change_body_controller(
 }
 
 fn move_controller(
-    mut q_player: Query<(&mut Transform, &LookDirection), With<Player>>,
+    mut q_player: Query<(&mut Transform, &CameraLookDirection), With<Player>>,
     q_controller: Option<Single<&Gamepad>>,
 ) {
     let Some(q_controller) = q_controller else {
@@ -165,7 +164,7 @@ fn move_controller(
 }
 
 fn update_look_gamepad(
-    mut q_player: Single<&mut LookDirection, With<Player>>,
+    mut q_player: Single<&mut CameraLookDirection, With<Player>>,
     q_controller: Option<Single<&Gamepad>>,
     time: Res<Time>,
 ) {

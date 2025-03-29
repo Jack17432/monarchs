@@ -1,15 +1,13 @@
+pub mod config;
+pub mod controllers;
 pub mod core;
 pub mod debug;
 pub mod environment;
+pub mod ui;
 pub mod views;
+pub mod void_born;
 
 use bevy::prelude::*;
-
-#[derive(Component, Debug)]
-pub struct CameraLookDirection(pub Quat);
-
-#[derive(Component)]
-pub struct Player;
 
 #[derive(States, Default, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum GameState {
