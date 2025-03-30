@@ -13,7 +13,7 @@ use monarchs::void_born::VoidBornPlugin;
 use monarchs::void_born::souls::SoulBundle;
 use monarchs::void_born::vessels::VesselBundle;
 use monarchs::{GameState, ui};
-use monarchs::core::{Collider, PhysicsObject};
+use monarchs::core::{Collider, PhysicsBodyType};
 
 fn main() {
     App::new()
@@ -39,7 +39,7 @@ fn setup_player(
     let cube_vessel = commands
         .spawn((
             Transform::from_xyz(-2.0, -2.0, 1.0),
-            PhysicsObject::Dynamic,
+            PhysicsBodyType::Dynamic,
             Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             PlayerControlled,
             PlayerCameraInfo(Quat::IDENTITY),
@@ -57,7 +57,7 @@ fn setup_player(
     let donut_vessel = commands
         .spawn((
             Transform::from_xyz(0.0, 0.0, 1.0),
-            PhysicsObject::Dynamic,
+            PhysicsBodyType::Dynamic,
             Collider::from_cuboid(0.5, 0.5, 0.5),
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
             DebugShowAxes,

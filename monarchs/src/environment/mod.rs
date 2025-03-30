@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::core::{Collider, PhysicsObject};
+use crate::core::{Collider, PhysicsBodyType};
 
 pub struct WorldPlugin;
 
@@ -23,7 +23,7 @@ fn create_flat(
         for y in -3..=3 {
             cube_batch.push((
                 Transform::from_xyz(x as f32, y as f32, -1.0),
-                PhysicsObject::Static,
+                PhysicsBodyType::Static,
                 Collider::from_cuboid(0.5, 0.5, 0.5),
                 Mesh3d(cube_mesh.clone()),
                 MeshMaterial3d(materials.add(StandardMaterial {
@@ -35,7 +35,7 @@ fn create_flat(
     }
     cube_batch.push((
         Transform::from_xyz(3.0, 3.0, 0.0),
-        PhysicsObject::Static,
+        PhysicsBodyType::Static,
         Collider::from_cuboid(0.5, 0.5, 0.5),
         Mesh3d(cube_mesh.clone()),
         MeshMaterial3d(materials.add(StandardMaterial {

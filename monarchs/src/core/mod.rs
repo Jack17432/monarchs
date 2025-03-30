@@ -6,13 +6,22 @@ pub mod solver;
 
 #[derive(Component, Debug, Copy, Clone, Reflect, Eq, PartialEq)]
 #[require(LinerVelocity)]
-pub enum PhysicsObject {
+pub enum PhysicsBodyType {
     Static,
     Dynamic,
 }
 
 #[derive(Component, Debug, Copy, Clone, Reflect, PartialEq, Default)]
 pub struct LinerVelocity(pub Vec3);
+
+#[derive(Component, Debug, Copy, Clone, Reflect, PartialEq)]
+pub struct LinerDamping(pub f64);
+
+impl Default for LinerDamping {
+    fn default() -> Self {
+        Self(0.995)
+    }
+}
 
 #[derive(Component, Debug)]
 pub struct Collider {
