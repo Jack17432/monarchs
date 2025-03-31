@@ -3,17 +3,17 @@ use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
 use bevy_obj::ObjPlugin;
 use monarchs::config::ConfigPlugin;
-use monarchs::controllers::ControllerPluginGroup;
 use monarchs::controllers::player::{Player, PlayerControlled};
+use monarchs::controllers::ControllerPluginGroup;
+use monarchs::core::{Collider, PhysicsBodyType};
 use monarchs::debug::*;
 use monarchs::environment::*;
 use monarchs::views::player_camera::*;
 use monarchs::views::*;
-use monarchs::void_born::VoidBornPlugin;
 use monarchs::void_born::souls::SoulBundle;
 use monarchs::void_born::vessels::VesselBundle;
-use monarchs::{GameState, ui};
-use monarchs::core::{Collider, PhysicsBodyType};
+use monarchs::void_born::VoidBornPlugin;
+use monarchs::{ui, GameState};
 
 fn main() {
     App::new()
@@ -51,7 +51,10 @@ fn setup_player(
             DebugShowAxes,
             DebugCameraPoint,
         ))
-        .insert(VesselBundle::default())
+        .insert(VesselBundle::new(
+            String::from("Grassius"),
+            Some(String::from("Grass block")),
+        ))
         .id();
 
     let donut_vessel = commands
@@ -63,7 +66,10 @@ fn setup_player(
             DebugShowAxes,
             DebugCameraPoint,
         ))
-        .insert(VesselBundle::default())
+        .insert(VesselBundle::new(
+            String::from("Donut"),
+            None,
+        ))
         .id();
 
     commands.spawn(Player).insert(SoulBundle::new(
