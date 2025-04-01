@@ -1,4 +1,3 @@
-use bevy::color::palettes::basic::BLUE;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
@@ -87,9 +86,25 @@ fn setup_player(
         ))
         .id();
 
+    let std_cube_black_vessel = commands
+        .spawn((
+            Transform::from_xyz(0.0, 2.0, 1.0),
+            PhysicsBodyType::Dynamic,
+            Collider::from_cuboid(0.5, 0.5, 0.5),
+            Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
+            MeshMaterial3d(materials.add(Color::BLACK)),
+            DebugShowAxes,
+            DebugCameraPoint,
+        ))
+        .insert(VesselBundle::new(
+            String::from("Std black cube"),
+            Some(String::from("Blacky")),
+        ))
+        .id();
+
     commands.spawn(Player).insert(SoulBundle::new(
         cube_vessel,
         donut_vessel,
-        vec![cube_vessel, donut_vessel, std_cube_vessel],
+        vec![cube_vessel, donut_vessel, std_cube_vessel, std_cube_black_vessel],
     ));
 }

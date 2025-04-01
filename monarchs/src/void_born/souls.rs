@@ -100,11 +100,11 @@ pub fn vessel_swap_system(
     for VesselSwapEvent(soul, curr_vessel, next_vessel) in e_swap.read() {
         let Ok((mut bound, mut next_bound)) = q_soul.get_mut(*soul) else {
             error!(soul = ?soul, "Unable to retrieve soul");
-            return;
+            continue;
         };
 
         if bound.0 == next_bound.0 {
-            warn!(soul = ?soul, curr = ?bound, next = ?next_bound, "Vessel does not overlap");
+            error!(soul = ?soul, curr = ?bound, next = ?next_bound, "Current vessels is the same as next vessel");
             continue;
         }
 
@@ -117,7 +117,7 @@ pub fn vessel_swap_system(
             ],
         ) = q_vessels.get_many_mut([*curr_vessel, *next_vessel])
         else {
-            error!(current = ?curr_vessel, next = ?next_vessel, "Unable to retrive vessels");
+            error!(current = ?curr_vessel, next = ?next_vessel, "Unable to retrieve vessels");
             continue;
         };
         info!(
@@ -157,29 +157,40 @@ pub fn vessel_change_next_system(
     for (ChangeNextVesselEvent(soul, direction)) in e_vessel_change_next.read() {
         let (curr_vessel, mut next_vessel, owned_vessels) = q_souls.get_mut(*soul).unwrap();
 
-        let mut idx = owned_vessels.0.binary_search(&next_vessel.0).unwrap();
-        let mut curr_idx = owned_vessels.0.binary_search(&curr_vessel.0).unwrap();
+        let length = owned_vessels.0.len() as isize;
+        let mut idx = owned_vessels.0.binary_search(&next_vessel.0).unwrap() as isize;
+        let mut curr_idx = owned_vessels.0.binary_search(&curr_vessel.0).unwrap() as isize;
+
+        if length <= 2 {
+            continue;
+        }
+
+        info!(idx = ?idx, curr_idx = ?curr_idx, direction = ?direction);
 
         match direction {
             ChangeDir::Forward => {
-                if idx >= owned_vessels.0.len() - 1 {
-                    idx = 0;
-                } else {
-                    idx += 1;
+                idx += 1;
+                while idx == curr_idx || idx >= length {
+                    if idx == curr_idx {
+                        idx += 1;
+                    } else {
+                        idx = 0;
+                    }
                 }
-
-                next_vessel.0 = owned_vessels.0[idx];
             }
             ChangeDir::Backward => {
-                if idx <= 0 {
-                    idx = owned_vessels.0.len() - 1;
-                } else {
-                    idx -= 1;
+                idx -= 1;
+                while idx == curr_idx || idx < 0 {
+                    if idx == curr_idx {
+                        idx -= 1;
+                    } else {
+                        idx = length - 1;
+                    }
                 }
-
-                next_vessel.0 = owned_vessels.0[idx];
             }
         }
+
+        next_vessel.0 = owned_vessels.0[idx as usize];
 
         info!(dir = ?direction, new_vessel =? next_vessel, all_vessels = ?owned_vessels, "Vessel changed");
     }

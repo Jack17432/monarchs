@@ -1,6 +1,6 @@
 use crate::controllers::player::Player;
 use crate::void_born::souls::{BoundToVessel, NextVessel, OwnedVessels};
-use crate::void_born::vessels::{Vessel, VesselName};
+use crate::void_born::vessels::VesselName;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use egui_extras::{Column, TableBuilder};
@@ -8,12 +8,9 @@ use egui_extras::{Column, TableBuilder};
 pub fn vessel_switch_system(
     mut contexts: EguiContexts,
     soul: Single<(&BoundToVessel, &NextVessel, &OwnedVessels), With<Player>>,
-    vessels: Query<(Entity, &VesselName), With<Vessel>>,
+    vessels: Query<&VesselName>,
 ) {
-    let vessels = vessels
-        .iter()
-        .filter(|(entity, _)| soul.2.0.contains(entity))
-        .collect::<Vec<_>>();
+    let (curr_vessel, next_vessel, owned_vessels) = *soul;
 
     egui::Window::new("Vessels").show(contexts.ctx_mut(), |ui| {
         let mut table = TableBuilder::new(ui)
@@ -30,11 +27,13 @@ pub fn vessel_switch_system(
                 });
             })
             .body(|mut body| {
-                for (entity, name) in vessels {
-                    body.row(20.0, |mut row| {
-                        row.set_selected(entity == soul.0.0);
+                for (entity) in &owned_vessels.0 {
+                    let (name) = vessels.get(*entity).unwrap();
 
-                        if entity == soul.1.0 {
+                    body.row(20.0, |mut row| {
+                        row.set_selected(*entity == curr_vessel.0);
+
+                        if *entity == next_vessel.0 {
                             row.col(|mut ui| {
                                 ui.label("next");
                             });
