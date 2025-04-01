@@ -1,6 +1,9 @@
 use crate::config::UserGamepadConfig;
+use crate::core::LinerVelocity;
 use crate::views::player_camera::PlayerCameraInfo;
-use crate::void_born::souls::{BoundToVessel, NextVessel, VesselSwapEvent};
+use crate::void_born::souls::{
+    BoundToVessel, ChangeDir, ChangeNextVesselEvent, NextVessel, VesselSwapEvent,
+};
 use bevy::prelude::*;
 
 #[derive(Default)]
@@ -26,7 +29,7 @@ pub struct Player;
 pub struct PlayerControlled;
 
 fn update_move_gamepad(
-    mut q_player: Query<(&mut Transform, &PlayerCameraInfo), With<PlayerControlled>>,
+    mut q_player: Query<(&mut LinerVelocity, &PlayerCameraInfo), With<PlayerControlled>>,
     q_controller: Option<Single<&Gamepad>>,
     user_gamepad_config: Res<UserGamepadConfig>,
     time: Res<Time>,
@@ -39,12 +42,12 @@ fn update_move_gamepad(
         * time.delta_secs())
     .to_array();
 
-    let (mut transform, look_direction) = q_player.single_mut();
+    let (mut lin_vel, look_direction) = q_player.single_mut();
 
     let y_look_amount = look_direction.0.to_euler(EulerRot::XYZ).2;
 
     let change_by = Quat::from_rotation_z(y_look_amount) * Vec3::new(y, -x, 0.0);
-    transform.translation += change_by;
+    lin_vel.0 += change_by * 60.0 * time.delta_secs();
 }
 
 fn update_look_gamepad(
@@ -72,15 +75,25 @@ fn update_look_gamepad(
 fn update_vessel_gamepad(
     gamepad: Option<Single<&Gamepad>>,
     mut e_vessel_swap: EventWriter<VesselSwapEvent>,
+    mut e_vessel_next_change: EventWriter<ChangeNextVesselEvent>,
     player_soul: Single<(Entity, &BoundToVessel, &NextVessel), With<Player>>,
 ) {
     let Some(gamepad) = gamepad else {
         return;
     };
+    let (soul, curr, next) = player_soul.into_inner();
 
     if gamepad.just_pressed(GamepadButton::DPadDown) {
         info!("Swapping vessel");
-        let (soul, curr, next) = player_soul.into_inner();
         e_vessel_swap.send(VesselSwapEvent(soul, curr.0, next.0));
+    }
+
+    if gamepad.just_pressed(GamepadButton::DPadRight) {
+        info!("Changing next Forwards");
+        e_vessel_next_change.send(ChangeNextVesselEvent(soul, ChangeDir::Forward));
+    }
+    if gamepad.just_pressed(GamepadButton::DPadLeft) {
+        info!("Changing next Backwards");
+        e_vessel_next_change.send(ChangeNextVesselEvent(soul, ChangeDir::Backward));
     }
 }

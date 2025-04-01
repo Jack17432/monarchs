@@ -1,3 +1,4 @@
+use bevy::color::palettes::basic::BLUE;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
@@ -5,7 +6,7 @@ use bevy_obj::ObjPlugin;
 use monarchs::config::ConfigPlugin;
 use monarchs::controllers::player::{Player, PlayerControlled};
 use monarchs::controllers::ControllerPluginGroup;
-use monarchs::core::{Collider, PhysicsBodyType};
+use monarchs::core::{solver, Collider, PhysicsBodyType};
 use monarchs::debug::*;
 use monarchs::environment::*;
 use monarchs::views::player_camera::*;
@@ -25,6 +26,7 @@ fn main() {
         .add_plugins(ViewsPluginGroup)
         .add_plugins(VoidBornPlugin)
         .add_plugins(ControllerPluginGroup)
+        .add_plugins(solver::PhysicsSolverPlugin)
         .add_plugins(ui::UiPlugin)
         .init_state::<GameState>()
         .add_systems(Startup, setup_player)
@@ -66,15 +68,28 @@ fn setup_player(
             DebugShowAxes,
             DebugCameraPoint,
         ))
+        .insert(VesselBundle::new(String::from("Donut"), None))
+        .id();
+
+    let std_cube_vessel = commands
+        .spawn((
+            Transform::from_xyz(2.0, 0.0, 1.0),
+            PhysicsBodyType::Dynamic,
+            Collider::from_cuboid(0.5, 0.5, 0.5),
+            Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
+            MeshMaterial3d(materials.add(Color::WHITE)),
+            DebugShowAxes,
+            DebugCameraPoint,
+        ))
         .insert(VesselBundle::new(
-            String::from("Donut"),
-            None,
+            String::from("Std blue cube"),
+            Some(String::from("Bluey")),
         ))
         .id();
 
     commands.spawn(Player).insert(SoulBundle::new(
         cube_vessel,
         donut_vessel,
-        vec![cube_vessel, donut_vessel],
+        vec![cube_vessel, donut_vessel, std_cube_vessel],
     ));
 }

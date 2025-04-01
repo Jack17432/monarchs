@@ -1,4 +1,5 @@
 use crate::controllers::player::PlayerControlled;
+use crate::core::LinerVelocity;
 use crate::views::player_camera::{PlayerCamera, PlayerCameraInfo};
 use crate::void_born::vessels::Vessel;
 use bevy::prelude::*;
@@ -50,6 +51,15 @@ impl BoundToVessel {
 #[derive(Component, Debug)]
 pub struct NextVessel(pub Entity);
 
+#[derive(Debug, Copy, Clone, PartialEq, Hash)]
+pub enum ChangeDir {
+    Forward,
+    Backward,
+}
+
+#[derive(Event, Debug, Clone, Copy, PartialEq)]
+pub struct ChangeNextVesselEvent(pub Entity, pub ChangeDir);
+
 impl NextVessel {
     pub fn new(entity: Entity) -> Self {
         Self(entity)
@@ -77,7 +87,15 @@ pub fn vessel_swap_system(
     mut e_swap: EventReader<VesselSwapEvent>,
     camera: Single<Entity, With<PlayerCamera>>,
     mut q_soul: Query<(&mut BoundToVessel, &mut NextVessel), With<Soul>>,
-    mut q_vessels: Query<(&mut Transform, Has<PlayerControlled>, Option<&PlayerCameraInfo>), With<Vessel>>,
+    mut q_vessels: Query<
+        (
+            &mut Transform,
+            &mut LinerVelocity,
+            Has<PlayerControlled>,
+            Option<&PlayerCameraInfo>,
+        ),
+        With<Vessel>,
+    >,
 ) {
     for VesselSwapEvent(soul, curr_vessel, next_vessel) in e_swap.read() {
         let Ok((mut bound, mut next_bound)) = q_soul.get_mut(*soul) else {
@@ -92,8 +110,12 @@ pub fn vessel_swap_system(
 
         (*bound, *next_bound) = (BoundToVessel::new(next_bound.0), NextVessel::new(bound.0));
 
-        let Ok([(mut transform1, is_player_controlled, camera_info), (mut transform2, _, _)]) =
-            q_vessels.get_many_mut([*curr_vessel, *next_vessel])
+        let Ok(
+            [
+                (mut transform1, mut lin_vel1, is_player_controlled, camera_info),
+                (mut transform2, mut lin_vel2, _, _),
+            ],
+        ) = q_vessels.get_many_mut([*curr_vessel, *next_vessel])
         else {
             error!(current = ?curr_vessel, next = ?next_vessel, "Unable to retrive vessels");
             continue;
@@ -119,14 +141,46 @@ pub fn vessel_swap_system(
         }
 
         if let Some(camera_info) = camera_info {
-            commands
-                .entity(*curr_vessel)
-                .remove::<PlayerCameraInfo>();
-            commands
-                .entity(*next_vessel)
-                .insert(camera_info.clone());
+            commands.entity(*curr_vessel).remove::<PlayerCameraInfo>();
+            commands.entity(*next_vessel).insert(camera_info.clone());
         };
 
+        (*lin_vel1, *lin_vel2) = (lin_vel2.clone(), lin_vel1.clone());
         (*transform1, *transform2) = (transform2.clone(), transform1.clone());
+    }
+}
+
+pub fn vessel_change_next_system(
+    mut q_souls: Query<(&BoundToVessel, &mut NextVessel, &OwnedVessels)>,
+    mut e_vessel_change_next: EventReader<ChangeNextVesselEvent>,
+) {
+    for (ChangeNextVesselEvent(soul, direction)) in e_vessel_change_next.read() {
+        let (curr_vessel, mut next_vessel, owned_vessels) = q_souls.get_mut(*soul).unwrap();
+
+        let mut idx = owned_vessels.0.binary_search(&next_vessel.0).unwrap();
+        let mut curr_idx = owned_vessels.0.binary_search(&curr_vessel.0).unwrap();
+
+        match direction {
+            ChangeDir::Forward => {
+                if idx >= owned_vessels.0.len() - 1 {
+                    idx = 0;
+                } else {
+                    idx += 1;
+                }
+
+                next_vessel.0 = owned_vessels.0[idx];
+            }
+            ChangeDir::Backward => {
+                if idx <= 0 {
+                    idx = owned_vessels.0.len() - 1;
+                } else {
+                    idx -= 1;
+                }
+
+                next_vessel.0 = owned_vessels.0[idx];
+            }
+        }
+
+        info!(dir = ?direction, new_vessel =? next_vessel, all_vessels = ?owned_vessels, "Vessel changed");
     }
 }

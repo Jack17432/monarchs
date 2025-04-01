@@ -3,14 +3,14 @@ use bevy::prelude::*;
 #[derive(Bundle, Debug)]
 pub struct VesselBundle {
     vessel: Vessel,
-    name: Name,
+    name: VesselName,
 }
 
 impl VesselBundle {
     pub fn new(name: String, nickname: Option<String>) -> Self {
         Self {
             vessel: Vessel,
-            name: Name { name, nickname },
+            name: VesselName { name, nickname },
         }
     }
 }
@@ -19,15 +19,15 @@ impl VesselBundle {
 pub struct Vessel;
 
 #[derive(Component, Debug)]
-pub struct Name {
+pub struct VesselName {
     pub name: String,
     pub nickname: Option<String>,
 }
 
-impl Name {
+impl VesselName {
     pub fn get_name(&self) -> String {
         if self.nickname.is_some() {
-            self.nickname.clone().unwrap()
+            return self.nickname.clone().unwrap();
         }
 
         self.name.clone()

@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use parry3d::math::Point;
 use parry3d::na::Vector;
+use std::collections::HashMap;
+use std::hash::Hash;
 
 pub mod solver;
 
@@ -13,6 +15,10 @@ pub enum PhysicsBodyType {
 
 #[derive(Component, Debug, Copy, Clone, Reflect, PartialEq, Default)]
 pub struct LinerVelocity(pub Vec3);
+
+impl LinerVelocity {
+    pub const ZERO: Self = Self(Vec3::ZERO);
+}
 
 #[derive(Component, Debug, Copy, Clone, Reflect, PartialEq)]
 pub struct LinerDamping(pub f64);
@@ -45,3 +51,14 @@ impl Collider {
         }
     }
 }
+
+#[derive(Debug)]
+pub struct CollisionInfo {
+    entity_1: Entity,
+    entity_2: Entity,
+
+    dist: f32,
+}
+
+#[derive(Resource, Debug, Default)]
+pub struct Collisions(HashMap<(Entity, Entity), CollisionInfo>);
