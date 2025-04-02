@@ -2,32 +2,18 @@ use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
 use bevy_obj::ObjPlugin;
-use monarchs::config::ConfigPlugin;
-use monarchs::controllers::ControllerPluginGroup;
 use monarchs::controllers::player::{Player, PlayerControlled};
 use monarchs::core::physics::{Collider, PhysicsBodyType};
-use monarchs::core::*;
 use monarchs::debug::*;
-use monarchs::environment::*;
 use monarchs::views::player_camera::*;
-use monarchs::views::*;
-use monarchs::void_born::VoidBornPlugin;
 use monarchs::void_born::souls::SoulBundle;
 use monarchs::void_born::vessels::VesselBundle;
-use monarchs::{GameState, ui};
+use monarchs::{GameState, MonarchsGamePluginGroup};
 
 fn main() {
     App::new()
-        // .insert_resource(Time::<Fixed>::from_hz(100.0))
         .add_plugins((DefaultPlugins, EguiPlugin, FramepacePlugin, ObjPlugin))
-        .add_plugins(DebugToolsPlugin)
-        .add_plugins(ConfigPlugin)
-        .add_plugins(WorldPlugin)
-        .add_plugins(ViewsPluginGroup)
-        .add_plugins(VoidBornPlugin)
-        .add_plugins(ControllerPluginGroup)
-        .add_plugins(CorePluginGroup)
-        .add_plugins(ui::UiPlugin)
+        .add_plugins(MonarchsGamePluginGroup)
         .init_state::<GameState>()
         .add_systems(Startup, setup_player)
         .run();
