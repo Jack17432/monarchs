@@ -159,7 +159,7 @@ pub fn vessel_change_next_system(
 
         let length = owned_vessels.0.len() as isize;
         let mut idx = owned_vessels.0.binary_search(&next_vessel.0).unwrap() as isize;
-        let mut curr_idx = owned_vessels.0.binary_search(&curr_vessel.0).unwrap() as isize;
+        let curr_idx = owned_vessels.0.binary_search(&curr_vessel.0).unwrap() as isize;
 
         if length <= 2 {
             continue;

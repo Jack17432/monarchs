@@ -40,8 +40,8 @@ fn setup_player(
     let cube_vessel = commands
         .spawn((
             Transform::from_xyz(-2.0, -2.0, 1.0),
-            PhysicsBodyType::Dynamic,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
+            PhysicsBodyType::Controlled,
+            Collider::from_capsule(Vec3::new(0.0, 0.0, -0.5), Vec3::new(0.0, 0.0, 0.5), 1.0),
             PlayerControlled,
             PlayerCameraInfo(Quat::IDENTITY),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
@@ -61,8 +61,8 @@ fn setup_player(
     let donut_vessel = commands
         .spawn((
             Transform::from_xyz(0.0, 0.0, 1.0),
-            PhysicsBodyType::Dynamic,
-            Collider::from_cuboid(0.5, 0.5, 0.5),
+            PhysicsBodyType::Controlled,
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
             DebugShowAxes,
             DebugCameraPoint,
@@ -73,8 +73,8 @@ fn setup_player(
     let std_cube_vessel = commands
         .spawn((
             Transform::from_xyz(2.0, 0.0, 1.0),
-            PhysicsBodyType::Dynamic,
-            Collider::from_cuboid(0.5, 0.5, 0.5),
+            PhysicsBodyType::Controlled,
+            Collider::from_capsule(Vec3::new(0.0, 0.0, -0.5), Vec3::new(0.0, 0.0, 0.5), 1.0),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::WHITE)),
             DebugShowAxes,
@@ -89,8 +89,8 @@ fn setup_player(
     let std_cube_black_vessel = commands
         .spawn((
             Transform::from_xyz(0.0, 2.0, 1.0),
-            PhysicsBodyType::Dynamic,
-            Collider::from_cuboid(0.5, 0.5, 0.5),
+            PhysicsBodyType::Controlled,
+            Collider::from_capsule(Vec3::new(0.0, 0.0, -0.5), Vec3::new(0.0, 0.0, 0.5), 1.0),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::BLACK)),
             DebugShowAxes,

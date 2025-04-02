@@ -1,8 +1,7 @@
 use bevy::prelude::*;
-use parry3d::math::Point;
-use parry3d::na::Vector;
+use parry3d::math::{Isometry, Point};
+use parry3d::na::Vector3;
 use std::collections::HashMap;
-use std::hash::Hash;
 
 pub mod solver;
 
@@ -10,7 +9,7 @@ pub mod solver;
 #[require(LinerVelocity)]
 pub enum PhysicsBodyType {
     Static,
-    Dynamic,
+    Controlled,
 }
 
 #[derive(Component, Debug, Copy, Clone, Reflect, PartialEq, Default)]
@@ -54,11 +53,44 @@ impl Collider {
 
 #[derive(Debug)]
 pub struct CollisionInfo {
-    entity_1: Entity,
-    entity_2: Entity,
+    pub manifolds: Vec<CollisionManifold>,
+}
 
-    dist: f32,
+impl CollisionInfo {
+    pub fn new(manifolds: Vec<CollisionManifold>) -> Self {
+        Self { manifolds }
+    }
+}
+
+#[derive(Debug)]
+pub struct CollisionManifold {
+    pub points: Vec<CollisionPoints>,
+    pub normal: Vec3,
+}
+
+impl CollisionManifold {
+    pub fn new(points: Vec<CollisionPoints>, normal: Vec3) -> Self {
+        Self { points, normal }
+    }
+}
+
+#[derive(Debug)]
+pub struct CollisionPoints {
+    pub penetration: f32,
+}
+
+impl CollisionPoints {
+    pub fn new(penetration: f32) -> Self {
+        Self { penetration }
+    }
 }
 
 #[derive(Resource, Debug, Default)]
 pub struct Collisions(HashMap<(Entity, Entity), CollisionInfo>);
+
+fn make_iso(transform: Vec3, rotate: Vec3) -> Isometry<f32> {
+    Isometry::new(
+        Vector3::new(transform.x, transform.y, transform.z),
+        Vector3::new(rotate.x, rotate.y, rotate.z),
+    )
+}
