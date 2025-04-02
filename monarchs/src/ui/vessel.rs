@@ -2,7 +2,7 @@ use crate::controllers::player::Player;
 use crate::void_born::souls::{BoundToVessel, NextVessel, OwnedVessels};
 use crate::void_born::vessels::VesselName;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{EguiContexts, egui};
 use egui_extras::{Column, TableBuilder};
 
 pub fn vessel_switch_system(

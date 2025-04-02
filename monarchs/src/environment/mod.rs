@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::core::physics::{Collider, PhysicsBodyType};
+use bevy::prelude::*;
 
 pub struct WorldPlugin;
 

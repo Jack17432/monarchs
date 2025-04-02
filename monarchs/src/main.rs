@@ -3,18 +3,18 @@ use bevy_egui::EguiPlugin;
 use bevy_framepace::FramepacePlugin;
 use bevy_obj::ObjPlugin;
 use monarchs::config::ConfigPlugin;
-use monarchs::controllers::player::{Player, PlayerControlled};
 use monarchs::controllers::ControllerPluginGroup;
+use monarchs::controllers::player::{Player, PlayerControlled};
 use monarchs::core::physics::{Collider, PhysicsBodyType};
 use monarchs::core::*;
 use monarchs::debug::*;
 use monarchs::environment::*;
 use monarchs::views::player_camera::*;
 use monarchs::views::*;
+use monarchs::void_born::VoidBornPlugin;
 use monarchs::void_born::souls::SoulBundle;
 use monarchs::void_born::vessels::VesselBundle;
-use monarchs::void_born::VoidBornPlugin;
-use monarchs::{ui, GameState};
+use monarchs::{GameState, ui};
 
 fn main() {
     App::new()

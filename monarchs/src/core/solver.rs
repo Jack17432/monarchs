@@ -1,6 +1,9 @@
+use crate::core::physics::{
+    Collider, CollisionInfo, CollisionManifold, CollisionPoints, Collisions, LinerVelocity,
+    PhysicsBodyType,
+};
 use bevy::prelude::*;
 use parry3d::query::{ContactManifold, PersistentQueryDispatcher};
-use crate::core::physics::{Collider, CollisionInfo, CollisionManifold, CollisionPoints, Collisions, LinerVelocity, PhysicsBodyType};
 
 const GRAVITY: Vec3 = Vec3::new(0.0, 0.0, -10.0);
 

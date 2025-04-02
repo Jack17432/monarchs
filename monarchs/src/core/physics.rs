@@ -1,8 +1,8 @@
-use bevy::prelude::{Component, Entity, Reflect, Resource};
-use std::collections::HashMap;
 use bevy::math::Vec3;
+use bevy::prelude::{Component, Entity, Reflect, Resource};
 use parry3d::math::{Isometry, Point};
 use parry3d::na::Vector3;
+use std::collections::HashMap;
 
 #[derive(Component, Debug, Copy, Clone, Reflect, Eq, PartialEq)]
 #[require(LinerVelocity)]

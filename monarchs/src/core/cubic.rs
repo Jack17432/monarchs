@@ -4,8 +4,5 @@ use bevy::prelude::*;
 pub struct CubicPlugin;
 
 impl Plugin for CubicPlugin {
-    fn build(&self, _app: &mut App) {
-
-    }
+    fn build(&self, _app: &mut App) {}
 }
-
