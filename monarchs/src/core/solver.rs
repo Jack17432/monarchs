@@ -38,6 +38,7 @@ fn integrate_velocities(
         .for_each(|(mut lin_vel, body_type)| match body_type {
             PhysicsBodyType::Controlled => {
                 lin_vel.0 += GRAVITY * time_delta;
+                lin_vel.0 *= 0.975;
             }
             PhysicsBodyType::Static => {
                 *lin_vel = LinerVelocity::ZERO;
@@ -80,30 +81,6 @@ fn detect_collisions(
                 transform_2.translation,
                 transform_2.rotation.to_euler(EulerRot::XYZ).into(),
             );
-
-            // let Ok(opt_contact) = parry3d::query::contact(
-            //     &iso_1,
-            //     collider_1.collider.0.as_ref(),
-            //     &iso_2,
-            //     collider_2.collider.0.as_ref(),
-            //     0.0,
-            // ) else {
-            //     return;
-            // };
-            //
-            // let Some(contact) = opt_contact else {
-            //     return;
-            // };
-            //
-            // let normal = Vec3::new(contact.normal1.x, contact.normal1.y, contact.normal1.z);
-            //
-            // collisions.0.insert(
-            //     (entity_1, entity_2),
-            //     CollisionInfo {
-            //         normal,
-            //         penetration: -contact.dist,
-            //     },
-            // );
 
             let mut manifolds: Vec<ContactManifold<(), ()>> = Vec::new();
 

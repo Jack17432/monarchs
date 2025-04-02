@@ -39,6 +39,7 @@ impl Collider {
         }
     }
 
+    /// Note: Make sure that a != b, if so then it will be jittery.
     pub fn from_capsule(a: Vec3, b: Vec3, radius: f32) -> Self {
         Self {
             collider: parry3d::shape::SharedShape::capsule(

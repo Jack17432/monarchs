@@ -42,7 +42,7 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(-2.0, -2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.5),
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             PlayerControlled,
             PlayerCameraInfo(Quat::IDENTITY),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
@@ -77,7 +77,7 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(2.0, 0.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.5),
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::WHITE)),
             DebugShowAxes,
@@ -94,7 +94,7 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(0.0, 2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.5),
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::BLACK)),
             DebugShowAxes,
