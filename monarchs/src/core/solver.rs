@@ -158,42 +158,62 @@ fn controlled_collision_controller(
     mut q_body_controller: Query<(&mut Transform, &mut LinerVelocity, &PhysicsBodyType)>,
 ) {
     for (((entity_1, entity_2), collision_info)) in collisions.0.iter() {
-        let is_first: bool;
+        let mut is_first: bool;
+        let more_then_one: bool;
 
-        let (mut transform, mut lin_vel, _) = match q_bodies.get_many([*entity_1, *entity_2]) {
-            Ok([PhysicsBodyType::Controlled, PhysicsBodyType::Controlled]) => continue,
+        for (mut transform, mut lin_vel, _) in match q_bodies.get_many([*entity_1, *entity_2]) {
+            Ok([PhysicsBodyType::Controlled, PhysicsBodyType::Controlled]) => {
+                is_first = true;
+                more_then_one = true;
+
+                let bodies = q_body_controller
+                    .get_many_mut([*entity_1, *entity_2])
+                    .unwrap();
+                let mut ret = Vec::new();
+                for body in bodies {
+                    ret.push(body);
+                }
+                ret
+            }
             Ok([PhysicsBodyType::Controlled, _]) => {
                 is_first = true;
-                q_body_controller.get_mut(*entity_1).unwrap()
+                more_then_one = false;
+                vec![q_body_controller.get_mut(*entity_1).unwrap()]
             }
             Ok([_, PhysicsBodyType::Controlled]) => {
                 is_first = false;
-                q_body_controller.get_mut(*entity_2).unwrap()
+                more_then_one = false;
+                vec![q_body_controller.get_mut(*entity_2).unwrap()]
             }
             _ => continue,
-        };
+        } {
+            for manifold in &collision_info.manifolds {
+                let normal = if is_first {
+                    -manifold.normal
+                } else {
+                    manifold.normal
+                };
+                is_first = false;
 
-        for manifold in &collision_info.manifolds {
-            let normal = if is_first {
-                -manifold.normal
-            } else {
-                manifold.normal
-            };
-
-            let mut max_pen = f32::MIN;
-            for contact in &manifold.points {
-                if contact.penetration > 0.0 {
-                    transform.translation += normal * contact.penetration;
+                let mut max_pen = f32::MIN;
+                for contact in &manifold.points {
+                    if contact.penetration > 0.0 {
+                        transform.translation += normal * contact.penetration;
+                    }
+                    max_pen = max_pen.max(contact.penetration);
                 }
-                max_pen = max_pen.max(contact.penetration);
-            }
 
-            if lin_vel.0.dot(normal) > 0.0 {
-                continue;
-            }
+                if more_then_one {
+                    continue;
+                }
 
-            let impulse = lin_vel.0.reject_from_normalized(normal);
-            lin_vel.0 = impulse;
+                if lin_vel.0.dot(normal) > 0.0 {
+                    continue;
+                }
+
+                let impulse = lin_vel.0.reject_from_normalized(normal);
+                lin_vel.0 = impulse;
+            }
         }
     }
 }
