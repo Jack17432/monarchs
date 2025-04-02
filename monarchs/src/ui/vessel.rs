@@ -13,7 +13,7 @@ pub fn vessel_switch_system(
     let (curr_vessel, next_vessel, owned_vessels) = *soul;
 
     egui::Window::new("Vessels").show(contexts.ctx_mut(), |ui| {
-        let mut table = TableBuilder::new(ui)
+        let table = TableBuilder::new(ui)
             .column(Column::auto())
             .column(Column::auto());
 
@@ -27,24 +27,24 @@ pub fn vessel_switch_system(
                 });
             })
             .body(|mut body| {
-                for (entity) in &owned_vessels.0 {
-                    let (name) = vessels.get(*entity).unwrap();
+                for entity in &owned_vessels.0 {
+                    let name = vessels.get(*entity).unwrap();
 
                     body.row(20.0, |mut row| {
                         row.set_selected(*entity == curr_vessel.0);
 
                         if *entity == next_vessel.0 {
-                            row.col(|mut ui| {
+                            row.col(|ui| {
                                 ui.label("next");
                             });
                         } else {
-                            row.col(|mut ui| {
+                            row.col(|ui| {
                                 ui.label("");
                             });
                         }
 
                         let name = name.get_name();
-                        row.col(|mut ui| {
+                        row.col(|ui| {
                             ui.label(name);
                         });
                     });

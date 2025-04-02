@@ -1,5 +1,5 @@
 use crate::controllers::player::PlayerControlled;
-use crate::core::LinerVelocity;
+use crate::core::physics::LinerVelocity;
 use crate::views::player_camera::{PlayerCamera, PlayerCameraInfo};
 use crate::void_born::vessels::Vessel;
 use bevy::prelude::*;
@@ -154,7 +154,7 @@ pub fn vessel_change_next_system(
     mut q_souls: Query<(&BoundToVessel, &mut NextVessel, &OwnedVessels)>,
     mut e_vessel_change_next: EventReader<ChangeNextVesselEvent>,
 ) {
-    for (ChangeNextVesselEvent(soul, direction)) in e_vessel_change_next.read() {
+    for ChangeNextVesselEvent(soul, direction) in e_vessel_change_next.read() {
         let (curr_vessel, mut next_vessel, owned_vessels) = q_souls.get_mut(*soul).unwrap();
 
         let length = owned_vessels.0.len() as isize;

@@ -1,14 +1,10 @@
-use crate::core::{
-    Collider, CollisionInfo, CollisionManifold, CollisionPoints, Collisions, LinerVelocity,
-    PhysicsBodyType,
-};
 use bevy::prelude::*;
-use parry3d::na::RealField;
 use parry3d::query::{ContactManifold, PersistentQueryDispatcher};
+use crate::core::physics::{Collider, CollisionInfo, CollisionManifold, CollisionPoints, Collisions, LinerVelocity, PhysicsBodyType};
 
-const SKIN_WIDTH: f32 = 0.015;
 const GRAVITY: Vec3 = Vec3::new(0.0, 0.0, -10.0);
 
+#[derive(Default, Debug)]
 pub struct PhysicsSolverPlugin;
 
 impl Plugin for PhysicsSolverPlugin {
@@ -69,15 +65,15 @@ fn detect_collisions(
     collisions.0.clear();
 
     q_bodies.iter_combinations().for_each(
-        |([
+        |[
             (entity_1, transform_1, collider_1),
             (entity_2, transform_2, collider_2),
-        ])| {
-            let iso_1 = crate::core::make_iso(
+        ]| {
+            let iso_1 = crate::core::physics::make_iso(
                 transform_1.translation,
                 transform_1.rotation.to_euler(EulerRot::XYZ).into(),
             );
-            let iso_2 = crate::core::make_iso(
+            let iso_2 = crate::core::physics::make_iso(
                 transform_2.translation,
                 transform_2.rotation.to_euler(EulerRot::XYZ).into(),
             );
@@ -157,7 +153,7 @@ fn controlled_collision_controller(
     q_bodies: Query<&PhysicsBodyType>,
     mut q_body_controller: Query<(&mut Transform, &mut LinerVelocity, &PhysicsBodyType)>,
 ) {
-    for (((entity_1, entity_2), collision_info)) in collisions.0.iter() {
+    for ((entity_1, entity_2), collision_info) in collisions.0.iter() {
         let mut is_first: bool;
         let more_then_one: bool;
 

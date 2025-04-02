@@ -5,7 +5,8 @@ use bevy_obj::ObjPlugin;
 use monarchs::config::ConfigPlugin;
 use monarchs::controllers::player::{Player, PlayerControlled};
 use monarchs::controllers::ControllerPluginGroup;
-use monarchs::core::{solver, Collider, PhysicsBodyType};
+use monarchs::core::physics::{Collider, PhysicsBodyType};
+use monarchs::core::*;
 use monarchs::debug::*;
 use monarchs::environment::*;
 use monarchs::views::player_camera::*;
@@ -19,13 +20,13 @@ fn main() {
     App::new()
         // .insert_resource(Time::<Fixed>::from_hz(100.0))
         .add_plugins((DefaultPlugins, EguiPlugin, FramepacePlugin, ObjPlugin))
-        .add_plugins(DebugTools)
+        .add_plugins(DebugToolsPlugin)
         .add_plugins(ConfigPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(ViewsPluginGroup)
         .add_plugins(VoidBornPlugin)
         .add_plugins(ControllerPluginGroup)
-        .add_plugins(solver::PhysicsSolverPlugin)
+        .add_plugins(CorePluginGroup)
         .add_plugins(ui::UiPlugin)
         .init_state::<GameState>()
         .add_systems(Startup, setup_player)
@@ -41,7 +42,7 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(-2.0, -2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, -0.5), Vec3::new(0.0, 0.0, 0.5), 0.5),
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.5),
             PlayerControlled,
             PlayerCameraInfo(Quat::IDENTITY),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
@@ -51,6 +52,7 @@ fn setup_player(
             })),
             DebugShowAxes,
             DebugCameraPoint,
+            DebugCollisionMesh,
         ))
         .insert(VesselBundle::new(
             String::from("Grassius"),
@@ -66,6 +68,7 @@ fn setup_player(
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
             DebugShowAxes,
             DebugCameraPoint,
+            DebugCollisionMesh,
         ))
         .insert(VesselBundle::new(String::from("Donut"), None))
         .id();
@@ -74,11 +77,12 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(2.0, 0.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, -0.5), Vec3::new(0.0, 0.0, 0.5), 0.5),
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.5),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::WHITE)),
             DebugShowAxes,
             DebugCameraPoint,
+            DebugCollisionMesh,
         ))
         .insert(VesselBundle::new(
             String::from("Std blue cube"),
@@ -90,11 +94,12 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(0.0, 2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, -0.5), Vec3::new(0.0, 0.0, 0.5), 0.5),
+            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.5),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::BLACK)),
             DebugShowAxes,
             DebugCameraPoint,
+            DebugCollisionMesh,
         ))
         .insert(VesselBundle::new(
             String::from("Std black cube"),
@@ -105,6 +110,11 @@ fn setup_player(
     commands.spawn(Player).insert(SoulBundle::new(
         cube_vessel,
         donut_vessel,
-        vec![cube_vessel, donut_vessel, std_cube_vessel, std_cube_black_vessel],
+        vec![
+            cube_vessel,
+            donut_vessel,
+            std_cube_vessel,
+            std_cube_black_vessel,
+        ],
     ));
 }

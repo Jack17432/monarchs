@@ -1,5 +1,5 @@
 use crate::config::UserGamepadConfig;
-use crate::core::LinerVelocity;
+use crate::core::physics::LinerVelocity;
 use crate::views::player_camera::PlayerCameraInfo;
 use crate::void_born::souls::{
     BoundToVessel, ChangeDir, ChangeNextVesselEvent, NextVessel, VesselSwapEvent,
