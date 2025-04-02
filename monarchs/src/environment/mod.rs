@@ -19,24 +19,10 @@ fn create_flat(
 
     let mut cube_batch = Vec::new();
 
-    for x in -3..=3 {
-        for y in -3..=3 {
-            cube_batch.push((
-                Transform::from_xyz(x as f32, y as f32, -1.0),
-                PhysicsBodyType::Static,
-                Collider::from_cuboid(0.5, 0.5, 0.5),
-                Mesh3d(cube_mesh.clone()),
-                MeshMaterial3d(materials.add(StandardMaterial {
-                    base_color_texture: Some(grass_texture.clone()),
-                    ..default()
-                })),
-            ));
-        }
-    }
     cube_batch.push((
-        Transform::from_xyz(3.0, 3.0, 0.0),
+        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(20.0, 20.0, 1.0)),
         PhysicsBodyType::Static,
-        Collider::from_cuboid(0.5, 0.5, 0.5),
+        Collider::from_cuboid(10.0, 10.0, 0.5),
         Mesh3d(cube_mesh.clone()),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(grass_texture.clone()),

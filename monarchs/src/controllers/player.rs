@@ -38,16 +38,20 @@ fn update_move_gamepad(
         return;
     };
 
+    let (mut lin_vel, look_direction) = q_player.single_mut();
+
+    if q_controller.just_pressed(GamepadButton::South) {
+        lin_vel.0.z += 7.0;
+    }
+
     let [x, y] = (user_gamepad_config.apply_left_stick_config(q_controller.left_stick())
         * time.delta_secs())
     .to_array();
 
-    let (mut lin_vel, look_direction) = q_player.single_mut();
-
     let y_look_amount = look_direction.0.to_euler(EulerRot::XYZ).2;
 
     let change_by = Quat::from_rotation_z(y_look_amount) * Vec3::new(y, -x, 0.0);
-    lin_vel.0 += change_by * 60.0 * time.delta_secs();
+    lin_vel.0 += change_by * 250.0 * time.delta_secs();
 }
 
 fn update_look_gamepad(

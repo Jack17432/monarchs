@@ -38,7 +38,7 @@ fn integrate_velocities(
         .for_each(|(mut lin_vel, body_type)| match body_type {
             PhysicsBodyType::Controlled => {
                 lin_vel.0 += GRAVITY * time_delta;
-                lin_vel.0 *= 0.975;
+                lin_vel.0 *= Vec3::new(0.95, 0.95, 0.99);
             }
             PhysicsBodyType::Static => {
                 *lin_vel = LinerVelocity::ZERO;
