@@ -9,10 +9,15 @@ impl Plugin for CubicPlugin {
     fn build(&self, _app: &mut App) {}
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct Block {
     id: u32,
 }
 
-#[derive(Default, Debug, Resource, ExtractResource, Clone)]
-pub struct WorldBlocks(pub HashMap<(isize, isize), Block>);
+#[derive(Debug, Clone)]
+pub struct Chunk {
+}
+
+impl Chunk {
+    pub const SIZE: usize = 16;
+}

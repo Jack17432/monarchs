@@ -48,7 +48,7 @@ fn setup_player(
 
     let donut_vessel = commands
         .spawn((
-            Transform::from_xyz(0.0, 0.0, 1.0),
+            Transform::from_xyz(2.0, 2.0, 1.0),
             PhysicsBodyType::Controlled,
             Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
