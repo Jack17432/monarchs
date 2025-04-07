@@ -4,7 +4,6 @@ use bevy::color::palettes::basic::WHITE;
 use bevy::color::palettes::css::PINK;
 use bevy::prelude::*;
 use bevy::transform::systems::propagate_transforms;
-use parry3d::shape::TypedShape;
 
 #[derive(Component, Debug)]
 pub struct DebugShowAxes;
@@ -50,20 +49,5 @@ fn draw_collision_mesh(
 ) {
     for (global_transform, collider) in query.iter() {
         let translation = global_transform.translation();
-
-        match collider.collider.as_typed_shape() {
-            TypedShape::Capsule(c) => {
-                let (points, vertices) = c.to_outline(32);
-                let points = points
-                    .into_iter()
-                    .map(|point| translation + Vec3::new(point.x, point.y, point.z))
-                    .collect::<Vec<_>>();
-
-                for [a, b] in vertices {
-                    gizmos.line(points[a as usize], points[b as usize], WHITE);
-                }
-            }
-            _ => unimplemented!(),
-        }
     }
 }

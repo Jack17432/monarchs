@@ -12,7 +12,14 @@ use monarchs::{GameState, MonarchsGamePluginGroup};
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, EguiPlugin, FramepacePlugin, ObjPlugin))
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Monarchs".into(),
+                ..default()
+            }),
+            ..default()
+        }))
+        .add_plugins((EguiPlugin, FramepacePlugin, ObjPlugin))
         .add_plugins(MonarchsGamePluginGroup)
         .init_state::<GameState>()
         .add_systems(Startup, setup_player)
@@ -28,7 +35,6 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(-2.0, -2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             PlayerControlled,
             PlayerCameraInfo(Quat::IDENTITY),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
@@ -50,7 +56,6 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(2.0, 2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             SceneRoot(asset_server.load("meshes/donut.glb#Scene0")),
             DebugShowAxes,
             DebugCameraPoint,
@@ -63,7 +68,6 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(2.0, 0.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::WHITE)),
             DebugShowAxes,
@@ -80,7 +84,6 @@ fn setup_player(
         .spawn((
             Transform::from_xyz(0.0, 2.0, 1.0),
             PhysicsBodyType::Controlled,
-            Collider::from_capsule(Vec3::new(0.0, 0.0, 0.1), Vec3::new(0.0, 0.0, -0.1), 0.3),
             Mesh3d(asset_server.load::<Mesh>("meshes/cube.obj")),
             MeshMaterial3d(materials.add(Color::BLACK)),
             DebugShowAxes,

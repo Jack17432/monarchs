@@ -1,4 +1,4 @@
-use crate::core::physics::{Collider, PhysicsBodyType};
+use crate::core::physics::PhysicsBodyType;
 use bevy::prelude::*;
 
 pub struct WorldPlugin;
@@ -19,16 +19,20 @@ fn create_flat(
 
     let mut cube_batch = Vec::new();
 
-    cube_batch.push((
-        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(20.0, 20.0, 1.0)),
-        PhysicsBodyType::Static,
-        Collider::from_cuboid(10.0, 10.0, 0.5),
-        Mesh3d(cube_mesh.clone()),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color_texture: Some(grass_texture.clone()),
-            ..default()
-        })),
-    ));
+    for x in -5..=5 {
+        for y in -5..=5 {
+            cube_batch.push((
+                Transform::from_xyz(x as f32, y as f32, 0.0),
+                PhysicsBodyType::Static,
+                Mesh3d(cube_mesh.clone()),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color_texture: Some(grass_texture.clone()),
+                    ..default()
+                })),
+            ));
+        }
+    }
+
     commands.spawn_batch(cube_batch);
 
     commands.spawn((

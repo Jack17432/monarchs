@@ -1,4 +1,3 @@
-pub mod graphics;
 pub mod player_camera;
 
 use bevy::app::PluginGroupBuilder;
@@ -9,8 +8,6 @@ pub struct ViewsPluginGroup;
 
 impl PluginGroup for ViewsPluginGroup {
     fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>()
-            .add_group(graphics::GraphicsPluginGroup)
-            .add(player_camera::CameraPlugin)
+        PluginGroupBuilder::start::<Self>().add(player_camera::CameraPlugin)
     }
 }
