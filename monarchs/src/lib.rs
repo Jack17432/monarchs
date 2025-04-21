@@ -1,43 +1,25 @@
-pub mod config;
-pub mod controllers;
-pub mod core;
-pub mod debug;
-pub mod environment;
-pub mod ui;
-pub mod views;
-pub mod void_born;
+mod gameplay;
+mod database;
+mod screens;
+mod third_party;
 
-use crate::config::ConfigPlugin;
-use crate::controllers::ControllerPluginGroup;
-use crate::core::CorePluginGroup;
-use crate::debug::DebugToolsPlugin;
-use crate::environment::WorldPlugin;
-use crate::views::ViewsPluginGroup;
-use crate::void_born::VoidBornPlugin;
-use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 
-#[derive(States, Default, Clone, Debug, PartialEq, Eq, Hash)]
-pub enum GameState {
-    #[default]
-    StartMenu,
-    Running,
-    Paused,
-}
+pub struct AppPlugin;
 
-#[derive(Debug, Default)]
-pub struct MonarchsGamePluginGroup;
+impl Plugin for AppPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Monarchs".to_string(),
+                fit_canvas_to_parent: true,
+                ..default()
+            }),
+            ..default()
+        }));
 
-impl PluginGroup for MonarchsGamePluginGroup {
-    fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>()
-            .add(DebugToolsPlugin)
-            .add(ConfigPlugin)
-            .add(WorldPlugin)
-            .add(VoidBornPlugin)
-            .add(ui::UiPlugin)
-            .add_group(ViewsPluginGroup)
-            .add_group(ControllerPluginGroup)
-            .add_group(CorePluginGroup)
+        app.add_plugins(third_party::plugin);
+
+        app.add_plugins((database::plugin, screens::plugin, gameplay::plugin));
     }
 }
