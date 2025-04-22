@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::gameplay::camera::CameraOrder;
+use crate::gameplay::player::camera::CameraOrder;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, spawn_ui_camera);

@@ -1,7 +1,7 @@
-use crate::gameplay::camera::PlayerCamera;
 use crate::screens::Screen;
 use bevy::prelude::Val::{Percent, Px};
 use bevy::prelude::*;
+use crate::gameplay::player::camera::PlayerCamera;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Loading), load_loading_screen);

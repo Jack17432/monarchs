@@ -136,7 +136,7 @@ fn main_menu_screen_egui_system(
                     
                     if ui.button("delete").clicked() {
                         info!(save_name = ?save_name, "Deleting save file");
-                        let _ = files::delete_save_folder(main_menu.new_game_menu.name.clone());
+                        let _ = files::delete_save_folder(save_name.clone());
                     }
                     ui.end_row();
                     ui.separator();

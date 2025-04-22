@@ -1,6 +1,6 @@
-use crate::database::files;
-use bevy::prelude::*;
 use crate::screens::Screen;
+use bevy::prelude::*;
+use crate::gameplay::player::Player;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_observer(create_new_save).add_observer(load_save);
@@ -16,14 +16,27 @@ pub struct LoadSave {
     pub(crate) name: String,
 }
 
-fn create_new_save(save_info: Trigger<CreateNewSave>, mut commands: Commands, mut next_screen: ResMut<NextState<Screen>>) {
+fn create_new_save(
+    save_info: Trigger<CreateNewSave>,
+    mut commands: Commands,
+    mut next_screen: ResMut<NextState<Screen>>,
+) {
     next_screen.set(Screen::Loading);
-    
+
     commands.trigger(LoadSave {
         name: save_info.name.clone(),
     })
 }
 
-fn load_save(save_info: Trigger<LoadSave>, mut commands: Commands, mut next_screen: ResMut<NextState<Screen>>) {
+fn load_save(
+    save_info: Trigger<LoadSave>,
+    mut commands: Commands,
+    mut next_screen: ResMut<NextState<Screen>>,
+) {
     next_screen.set(Screen::Loading);
+
+    commands.spawn((
+        Player,
+        
+        ));
 }
