@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "experiments/*", "monarchs"]
+members = [ "monarchs-descent" ]
 
 [profile.dev]
 opt-level = 1
