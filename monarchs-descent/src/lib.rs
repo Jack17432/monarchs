@@ -1,4 +1,6 @@
+mod gameplay;
 mod third_party;
+mod ui_camera;
 
 use bevy::prelude::*;
 
@@ -16,5 +18,20 @@ impl Plugin for AppPlugin {
         }));
 
         app.add_plugins(third_party::plugin);
+
+        app.add_plugins(gameplay::plugin)
+            .add_plugins(ui_camera::plugin);
+    }
+}
+
+enum CameraOrder {
+    World,
+    ViewModel,
+    Ui,
+}
+
+impl From<CameraOrder> for isize {
+    fn from(order: CameraOrder) -> Self {
+        order as isize
     }
 }
