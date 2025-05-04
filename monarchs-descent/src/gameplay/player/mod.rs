@@ -1,6 +1,7 @@
-mod controller;
+pub(in crate::gameplay) mod controller;
 mod inventory;
 
+use crate::gameplay::player::controller::PlayerControllerBundle;
 use avian3d::prelude::{Collider, LockedAxes, RigidBody};
 use bevy::prelude::*;
 
@@ -28,10 +29,12 @@ fn spawn_test_player(
         .spawn((
             Name::new("Player"),
             Player,
-            Collider::capsule_endpoints(0.5, Vec3::NEG_Y * 0.5, Vec3::Y * 0.5),
-            LockedAxes::ROTATION_LOCKED,
             Transform::from_xyz(0.0, 15.0, 0.0),
-            RigidBody::Dynamic,
+            PlayerControllerBundle::new(Collider::capsule_endpoints(
+                0.5,
+                Vec3::NEG_Y * 0.5,
+                Vec3::Y * 0.5,
+            )),
         ))
         .with_children(|parent| {
             parent.spawn((

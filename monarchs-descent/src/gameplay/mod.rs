@@ -2,12 +2,10 @@ mod input;
 mod player;
 
 use crate::gameplay::input::*;
-use avian3d::prelude::{Collider, ColliderConstructor, ColliderConstructorHierarchy, RigidBody};
-use bevy::color::palettes::basic::RED;
+use avian3d::prelude::{ColliderConstructor, ColliderConstructorHierarchy, RigidBody};
 use bevy::pbr::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
-use crate::CameraOrder;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(input::plugin)

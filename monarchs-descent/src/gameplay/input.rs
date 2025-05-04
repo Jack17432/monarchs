@@ -30,7 +30,7 @@ fn binding_player(
     actions
         .bind::<Move>()
         .to((Cardinal::wasd_keys(), Axial::left_stick()))
-        .with_modifiers(DeadZone::default());
+        .with_modifiers((DeadZone::default(), SmoothNudge::default()));
 
     actions
         .bind::<Jump>()
