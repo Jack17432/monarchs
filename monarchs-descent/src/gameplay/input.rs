@@ -37,6 +37,10 @@ fn binding_player(
         .to((KeyCode::Space, GamepadButton::South));
 
     actions
+        .bind::<Crouch>()
+        .to((KeyCode::ControlLeft, GamepadButton::RightThumb));
+
+    actions
         .bind::<OpenInventory>()
         .to((KeyCode::KeyE, GamepadButton::East));
 
@@ -77,6 +81,10 @@ pub(super) struct InventoryActions;
 pub(super) struct Jump;
 
 #[derive(InputAction, Debug)]
+#[input_action(output = bool)]
+pub(super) struct Crouch;
+
+#[derive(InputAction, Debug)]
 #[input_action(output = Vec2)]
 pub(super) struct Move;
 
@@ -99,7 +107,3 @@ pub(super) struct CloseInventory;
 #[derive(InputAction, Debug)]
 #[input_action(output = bool, require_reset = true)]
 pub(super) struct OpenInteract;
-
-#[derive(InputAction, Debug)]
-#[input_action(output = bool, require_reset = true)]
-pub(super) struct CloseInteract;

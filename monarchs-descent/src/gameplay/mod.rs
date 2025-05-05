@@ -1,23 +1,23 @@
 mod input;
 mod player;
+mod wepons;
 
 use crate::gameplay::input::*;
-use avian3d::prelude::{ColliderConstructor, ColliderConstructorHierarchy, RigidBody};
+use avian3d::prelude::ColliderConstructor::{ConvexHullFromMesh, TrimeshFromMesh};
+use avian3d::prelude::{ColliderConstructorHierarchy, RigidBody};
 use bevy::pbr::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(input::plugin)
-        .add_plugins(player::plugin);
+        .add_plugins(player::plugin)
+        .add_plugins(wepons::plugin);
 
     app.add_systems(Startup, setup);
 }
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Actions::<PlayerActions>::default());
 
     commands.spawn((
@@ -41,9 +41,22 @@ fn setup(
     commands.spawn((
         Name::new("Map Basic surface"),
         SceneRoot(map_handle),
-        ColliderConstructorHierarchy::new(None)
-            .with_constructor_for_name("Ground", ColliderConstructor::TrimeshFromMesh),
+        ColliderConstructorHierarchy::new(TrimeshFromMesh),
         RigidBody::Static,
     ));
 
+    let gun_handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset("wepons/basic_gun.glb"));
+
+    commands.spawn((
+        Name::new("gun"),
+        Transform::from_xyz(5.0, 10.0, 0.0),
+        SceneRoot(gun_handle),
+        ColliderConstructorHierarchy::new(ConvexHullFromMesh),
+        RigidBody::Dynamic,
+        PickupItem,
+    ));
 }
+
+#[derive(Component, Debug, Reflect)]
+#[reflect(Component)]
+pub struct PickupItem;
