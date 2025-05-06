@@ -1,6 +1,7 @@
 mod input;
 mod player;
-mod wepons;
+mod settings;
+mod weapons;
 
 use crate::gameplay::input::*;
 use avian3d::prelude::ColliderConstructor::{ConvexHullFromMesh, TrimeshFromMesh};
@@ -12,7 +13,8 @@ use bevy_enhanced_input::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(input::plugin)
         .add_plugins(player::plugin)
-        .add_plugins(wepons::plugin);
+        .add_plugins(weapons::plugin)
+        .add_plugins(settings::plugin);
 
     app.add_systems(Startup, setup);
 }

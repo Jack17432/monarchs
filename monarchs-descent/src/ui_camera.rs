@@ -1,6 +1,6 @@
+use crate::CameraOrder;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use crate::CameraOrder;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, spawn_ui_camera);

@@ -8,7 +8,9 @@ bevy = { version = "0.16", features = ["bevy_dev_tools", "file_watcher"] }
 
 bevy_framepace = "0.19"
 bevy_egui = "0.34"
-bevy-inspector-egui = "0.31"
+bevy-inspector-egui = { git = "https://github.com/Jack17432/bevy-inspector-egui", branch = "main" }
+egui_dock = "0.16"
+bevy_console = { git = "https://github.com/Katsutoshii/bevy-console.git", branch = "bevy-0.16.0"}
 
 avian3d = { git = "https://github.com/Jondolf/avian", branch = "main" }
 

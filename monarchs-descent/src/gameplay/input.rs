@@ -6,10 +6,12 @@ const DEFAULT_SENSITIVITY: f32 = 0.002;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_input_context::<PlayerActions>()
-        .add_input_context::<InventoryActions>();
+        .add_input_context::<InventoryActions>()
+        .add_input_context::<SettingsActions>();
 
     app.add_observer(binding_player)
-        .add_observer(binding_inventory);
+        .add_observer(binding_inventory)
+        .add_observer(binding_settings);
 }
 
 fn binding_player(
@@ -47,6 +49,10 @@ fn binding_player(
     actions
         .bind::<OpenInteract>()
         .to((KeyCode::KeyF, GamepadButton::North));
+
+    actions
+        .bind::<OpenSettings>()
+        .to((KeyCode::Escape, GamepadButton::Start));
 }
 
 fn binding_inventory(
@@ -69,12 +75,31 @@ fn binding_inventory(
         .to((KeyCode::KeyE, GamepadButton::East));
 }
 
+fn binding_settings(
+    trigger: Trigger<Binding<SettingsActions>>,
+    mut setttings: Query<&mut Actions<SettingsActions>>,
+    mut window: Single<&mut Window>,
+) {
+    let mut actions = setttings.get_mut(trigger.target()).unwrap();
+
+    window.cursor_options.grab_mode = CursorGrabMode::None;
+    window.cursor_options.visible = true;
+
+    actions.bind::<CloseSettings>().to((
+        KeyCode::Escape,
+        GamepadButton::Start,
+        GamepadButton::West,
+    ));
+}
+
 #[derive(InputContext, Debug)]
 pub(super) struct PlayerActions;
 
 #[derive(InputContext, Debug)]
-#[input_context(priority = 1)]
 pub(super) struct InventoryActions;
+
+#[derive(InputContext, Debug)]
+pub(super) struct SettingsActions;
 
 #[derive(InputAction, Debug)]
 #[input_action(output = bool)]
@@ -107,3 +132,11 @@ pub(super) struct CloseInventory;
 #[derive(InputAction, Debug)]
 #[input_action(output = bool, require_reset = true)]
 pub(super) struct OpenInteract;
+
+#[derive(InputAction, Debug)]
+#[input_action(output = bool, require_reset = true)]
+pub(super) struct OpenSettings;
+
+#[derive(InputAction, Debug)]
+#[input_action(output = bool, require_reset = true)]
+pub(super) struct CloseSettings;

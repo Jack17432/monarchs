@@ -1,6 +1,6 @@
+use crate::CameraOrder;
 use crate::gameplay::input::{Crouch, Jump, Move, PlayerActions, Rotate};
 use crate::gameplay::player::{Player, PlayerCameraTarget};
-use crate::CameraOrder;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -103,7 +103,7 @@ pub struct JumpImpulse(pub f32);
 
 #[derive(Default, Component, Reflect, Debug, InspectorOptions)]
 #[reflect(Component, InspectorOptions)]
-pub struct MovementDamping{
+pub struct MovementDamping {
     pub ground: f32,
     pub air: f32,
 }
@@ -118,10 +118,7 @@ impl MovementDamping {
 #[reflect(Component, InspectorOptions)]
 pub struct CrouchModifier(pub f32);
 
-fn check_grounded(
-    mut commands: Commands,
-    player: Single<(Entity, &ShapeHits), With<Player>>,
-) {
+fn check_grounded(mut commands: Commands, player: Single<(Entity, &ShapeHits), With<Player>>) {
     let (entity, hits) = player.into_inner();
 
     let is_grounded = hits.iter().any(|_hit| return true);

@@ -8,7 +8,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn open_inventory(trigger: Trigger<Started<OpenInventory>>, mut commands: Commands) {
-    info!("Opening inventory");
+    info!("opening inventory");
 
     commands
         .entity(trigger.target())
