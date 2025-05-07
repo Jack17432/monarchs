@@ -34,8 +34,6 @@ fn toggle_editor(
     state: Res<State<EditorState>>,
     mut next_state: ResMut<NextState<EditorState>>,
 ) {
-    info!("??");
-
     match state.get() {
         EditorState::Closed => {
             next_state.set(EditorState::Open);

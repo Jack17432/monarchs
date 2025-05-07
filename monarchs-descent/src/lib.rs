@@ -30,6 +30,9 @@ impl Plugin for AppPlugin {
                 }),
         );
 
+        app.insert_state(AppState::Gameplay)
+            .add_sub_state::<GameState>();
+
         // Third party plugins
         app.add_plugins(third_party::plugin);
 
@@ -40,6 +43,20 @@ impl Plugin for AppPlugin {
         app.add_plugins(gameplay::plugin)
             .add_plugins(ui_camera::plugin);
     }
+}
+
+#[derive(States, Hash, Eq, PartialEq, Clone, Copy, Debug)]
+enum AppState {
+    Gameplay,
+}
+
+#[derive(SubStates, Hash, Eq, PartialEq, Clone, Copy, Debug, Default)]
+#[source(AppState = AppState::Gameplay)]
+pub(crate) enum GameState {
+    #[default]
+    Playing,
+    Inventory,
+    Settings,
 }
 
 enum CameraOrder {

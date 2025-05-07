@@ -1,7 +1,7 @@
 mod input;
+mod items;
 mod player;
 mod settings;
-mod weapons;
 
 use crate::gameplay::input::*;
 use avian3d::prelude::ColliderConstructor::{ConvexHullFromMesh, TrimeshFromMesh};
@@ -13,7 +13,7 @@ use bevy_enhanced_input::prelude::*;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(input::plugin)
         .add_plugins(player::plugin)
-        .add_plugins(weapons::plugin)
+        .add_plugins(items::plugin)
         .add_plugins(settings::plugin);
 
     app.add_systems(Startup, setup);
@@ -55,10 +55,5 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         SceneRoot(gun_handle),
         ColliderConstructorHierarchy::new(ConvexHullFromMesh),
         RigidBody::Dynamic,
-        PickupItem,
     ));
 }
-
-#[derive(Component, Debug, Reflect)]
-#[reflect(Component)]
-pub struct PickupItem;

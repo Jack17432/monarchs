@@ -1,8 +1,9 @@
 pub(in crate::gameplay) mod controller;
 mod inventory;
 
+use crate::gameplay::items::inventory::{In};
 use crate::gameplay::player::controller::PlayerControllerBundle;
-use avian3d::prelude::{Collider};
+use avian3d::prelude::Collider;
 use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -21,7 +22,7 @@ pub struct Player;
 pub struct PlayerCameraTarget;
 
 fn spawn_test_player(mut commands: Commands) {
-    commands
+    let player = commands
         .spawn((
             Name::new("Player"),
             Player,
@@ -31,6 +32,7 @@ fn spawn_test_player(mut commands: Commands) {
                 Vec3::NEG_Y * 0.5,
                 Vec3::Y * 0.5,
             )),
+            Inventory::new(30),
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -38,5 +40,8 @@ fn spawn_test_player(mut commands: Commands) {
                 PlayerCameraTarget,
                 Transform::from_xyz(0.0, 0.5, 0.0),
             ));
-        });
+        })
+        .id();
+
+    commands.spawn(ItemOf(player));
 }
