@@ -7,11 +7,11 @@ use bevy::reflect::TypeRegistry;
 use bevy::render::camera::Viewport;
 use bevy::window::PrimaryWindow;
 use bevy_egui::egui::{Ui, WidgetText};
-use bevy_egui::{egui, EguiContext, EguiContextPass, EguiContextSettings};
+use bevy_egui::{EguiContext, EguiContextPass, EguiContextSettings, egui};
 use bevy_enhanced_input::actions::Actions;
 use bevy_inspector_egui::bevy_inspector::hierarchy::{Hierarchy, SelectedEntities};
 use bevy_inspector_egui::bevy_inspector::{
-    ui_for_entities_shared_components, ui_for_entity_with_children, Filter,
+    Filter, ui_for_entities_shared_components, ui_for_entity_with_children,
 };
 use egui_dock::{DockArea, DockState, NodeIndex, Style};
 use std::any::TypeId;

@@ -47,7 +47,7 @@ fn binding_player(
         .to((KeyCode::KeyE, GamepadButton::East));
 
     actions
-        .bind::<OpenInteract>()
+        .bind::<Interact>()
         .to((KeyCode::KeyF, GamepadButton::North));
 
     actions
@@ -131,7 +131,7 @@ pub(super) struct CloseInventory;
 
 #[derive(InputAction, Debug)]
 #[input_action(output = bool, require_reset = true)]
-pub(super) struct OpenInteract;
+pub(super) struct Interact;
 
 #[derive(InputAction, Debug)]
 #[input_action(output = bool, require_reset = true)]

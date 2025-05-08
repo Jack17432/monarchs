@@ -1,14 +1,17 @@
 pub(in crate::gameplay) mod controller;
+mod interact;
 mod inventory;
 
-use crate::gameplay::items::inventory::{In};
+use crate::gameplay::items::inventory::Inventory;
 use crate::gameplay::player::controller::PlayerControllerBundle;
+use crate::gameplay::player::interact::InteractionRange;
 use avian3d::prelude::Collider;
 use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(inventory::plugin)
-        .add_plugins(controller::plugin);
+        .add_plugins(controller::plugin)
+        .add_plugins(interact::plugin);
 
     app.add_systems(Startup, spawn_test_player);
 }
@@ -32,6 +35,7 @@ fn spawn_test_player(mut commands: Commands) {
                 Vec3::NEG_Y * 0.5,
                 Vec3::Y * 0.5,
             )),
+            InteractionRange(5.0),
             Inventory::new(30),
         ))
         .with_children(|parent| {
@@ -42,6 +46,4 @@ fn spawn_test_player(mut commands: Commands) {
             ));
         })
         .id();
-
-    commands.spawn(ItemOf(player));
 }

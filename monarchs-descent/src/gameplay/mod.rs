@@ -4,6 +4,7 @@ mod player;
 mod settings;
 
 use crate::gameplay::input::*;
+use crate::gameplay::items::Item;
 use avian3d::prelude::ColliderConstructor::{ConvexHullFromMesh, TrimeshFromMesh};
 use avian3d::prelude::{ColliderConstructorHierarchy, RigidBody};
 use bevy::pbr::CascadeShadowConfigBuilder;
@@ -55,5 +56,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         SceneRoot(gun_handle),
         ColliderConstructorHierarchy::new(ConvexHullFromMesh),
         RigidBody::Dynamic,
+        Item,
     ));
 }

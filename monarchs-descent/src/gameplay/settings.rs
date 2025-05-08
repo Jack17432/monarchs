@@ -1,5 +1,5 @@
-use crate::gameplay::input::{CloseSettings, OpenSettings, PlayerActions, SettingsActions};
 use crate::GameState;
+use crate::gameplay::input::{CloseSettings, OpenSettings, PlayerActions, SettingsActions};
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 

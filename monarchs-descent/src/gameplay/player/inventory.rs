@@ -1,11 +1,15 @@
-use crate::gameplay::input::{CloseInventory, InventoryActions, OpenInventory, PlayerActions};
 use crate::GameState;
+use crate::gameplay::input::{CloseInventory, InventoryActions, OpenInventory, PlayerActions};
+use crate::gameplay::items::inventory::Inventory;
+use crate::gameplay::player::Player;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_observer(open_inventory)
         .add_observer(close_inventory);
+
+    app.add_systems(OnEnter(GameState::Inventory), show_inventory);
 }
 
 fn open_inventory(
@@ -56,4 +60,10 @@ fn close_inventory(
         .insert(Actions::<PlayerActions>::default());
 
     next_state.set(GameState::Playing);
+}
+
+fn show_inventory(player_inventory: Single<&Inventory, With<Player>>) {
+    let inventory = player_inventory.into_inner();
+
+    info!(?inventory);
 }
