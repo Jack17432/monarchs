@@ -139,17 +139,14 @@ impl EditorUiState {
 
         let [game, _inspector] =
             tree.split_right(NodeIndex::root(), 0.75, vec![EditorWindowTabs::Inspector]);
-        let [_game, hierarchy] = tree.split_left(
+        let [game, hierarchy] = tree.split_left(
             game,
             0.2,
             vec![EditorWindowTabs::Entities, EditorWindowTabs::Children],
         );
-        let [_hierarchy, _resources] = tree.split_below(
-            hierarchy,
-            0.5,
-            vec![EditorWindowTabs::Resources, EditorWindowTabs::Assets],
-        );
-        // let [_game, _bottom] = tree.split_below(game, 0.8, vec![EditorWindowTabs::Assets]);
+        let [_hierarchy, _resources] =
+            tree.split_below(hierarchy, 0.5, vec![EditorWindowTabs::Resources]);
+        let [_game, _bottom] = tree.split_below(game, 0.8, vec![EditorWindowTabs::Assets]);
 
         Self {
             state,

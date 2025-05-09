@@ -1,8 +1,9 @@
-use crate::CameraOrder;
 use crate::gameplay::input::{Crouch, Jump, Move, PlayerActions, Rotate};
 use crate::gameplay::player::{Player, PlayerCameraTarget};
+use crate::{CameraOrder, DEFAULT_RENDER_LAYER, UI_RENDER_LAYER, VIEW_MODEL_RENDER_LAYER};
 use avian3d::prelude::*;
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
 use bevy_enhanced_input::prelude::*;
 use bevy_inspector_egui::prelude::*;
 use std::f32::consts::FRAC_PI_2;
@@ -145,6 +146,7 @@ fn spawn_player_camera(_trigger: Trigger<OnAdd, PlayerCameraTarget>, mut command
                     order: CameraOrder::World.into(),
                     ..default()
                 },
+                RenderLayers::layer(DEFAULT_RENDER_LAYER),
             ));
 
             parent.spawn((
@@ -154,6 +156,7 @@ fn spawn_player_camera(_trigger: Trigger<OnAdd, PlayerCameraTarget>, mut command
                     order: CameraOrder::ViewModel.into(),
                     ..default()
                 },
+                RenderLayers::layer(VIEW_MODEL_RENDER_LAYER),
             ));
         });
 }

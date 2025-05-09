@@ -46,12 +46,14 @@ impl Plugin for AppPlugin {
 }
 
 #[derive(States, Hash, Eq, PartialEq, Clone, Copy, Debug)]
+#[states(scoped_entities)]
 enum AppState {
     Gameplay,
 }
 
 #[derive(SubStates, Hash, Eq, PartialEq, Clone, Copy, Debug, Default)]
 #[source(AppState = AppState::Gameplay)]
+#[states(scoped_entities)]
 pub(crate) enum GameState {
     #[default]
     Playing,
@@ -70,3 +72,7 @@ impl From<CameraOrder> for isize {
         order as isize
     }
 }
+
+pub(crate) const DEFAULT_RENDER_LAYER: usize = 0;
+pub(crate) const VIEW_MODEL_RENDER_LAYER: usize = 1;
+pub(crate) const UI_RENDER_LAYER: usize = 2;

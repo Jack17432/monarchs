@@ -1,4 +1,4 @@
-use crate::CameraOrder;
+use crate::{CameraOrder, UI_RENDER_LAYER};
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
@@ -15,6 +15,6 @@ fn spawn_ui_camera(mut commands: Commands) {
             order: CameraOrder::Ui.into(),
             ..default()
         },
-        RenderLayers::layer(1),
+        RenderLayers::layer(UI_RENDER_LAYER),
     ));
 }
