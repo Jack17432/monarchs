@@ -48,7 +48,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         RigidBody::Static,
     ));
 
-    let gun_handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset("wepons/basic_gun.glb"));
+    let gun_handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset("weapons/basic_gun.glb"));
 
     commands.spawn((
         Name::new("gun"),
