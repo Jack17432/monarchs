@@ -21,7 +21,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Actions::<PlayerActions>::default());
+    commands.spawn(Actions::<SettingsActions>::default());
 
     commands.spawn((
         Name::new("Light Sun"),

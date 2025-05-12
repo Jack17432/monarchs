@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = { version = "0.16", features = ["bevy_dev_tools", "file_watcher", "wayland", "dynamic_linking"] }
+bevy = { version = "0.16", features = ["bevy_dev_tools", "file_watcher", "wayland", "dynamic_linking", "track_location"] }
 bevy_dylib = { version = "0.16.0" }
 
 bevy_framepace = "0.19"

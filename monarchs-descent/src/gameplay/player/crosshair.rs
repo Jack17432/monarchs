@@ -46,7 +46,6 @@ fn show_crosshair(
                 ..default()
             },
             ImageNode::new(asset_server.load("Crosshair.png")),
-            StateScoped(GameState::Playing),
         )],
     ));
 }

@@ -55,9 +55,9 @@ enum AppState {
 #[source(AppState = AppState::Gameplay)]
 #[states(scoped_entities)]
 pub(crate) enum GameState {
-    #[default]
     Playing,
     Inventory,
+    #[default]
     Settings,
 }
 

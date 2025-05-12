@@ -1,17 +1,20 @@
 mod input;
+mod toggle_ui;
 
 use crate::editor::input::EditorActions;
+use crate::editor::toggle_ui::toggle;
+use avian3d::prelude::{Physics, PhysicsGizmos, PhysicsTime};
 use bevy::asset::{ReflectAsset, UntypedAssetId};
 use bevy::prelude::*;
 use bevy::reflect::TypeRegistry;
 use bevy::render::camera::Viewport;
 use bevy::window::PrimaryWindow;
 use bevy_egui::egui::{Ui, WidgetText};
-use bevy_egui::{EguiContext, EguiContextPass, EguiContextSettings, egui};
+use bevy_egui::{egui, EguiContext, EguiContextPass, EguiContextSettings};
 use bevy_enhanced_input::actions::Actions;
 use bevy_inspector_egui::bevy_inspector::hierarchy::{Hierarchy, SelectedEntities};
 use bevy_inspector_egui::bevy_inspector::{
-    Filter, ui_for_entities_shared_components, ui_for_entity_with_children,
+    ui_for_entities_shared_components, ui_for_entity_with_children, Filter,
 };
 use egui_dock::{DockArea, DockState, NodeIndex, Style};
 use std::any::TypeId;
@@ -115,6 +118,7 @@ enum EditorWindowTabs {
     Resources,
     Assets,
     Inspector,
+    Physics,
 }
 
 #[derive(Eq, PartialEq)]
@@ -137,8 +141,10 @@ impl EditorUiState {
         let mut state = DockState::new(vec![EditorWindowTabs::GameView]);
         let tree = state.main_surface_mut();
 
-        let [game, _inspector] =
+        let [game, inspector] =
             tree.split_right(NodeIndex::root(), 0.75, vec![EditorWindowTabs::Inspector]);
+        let [_physics, _inspector] =
+            tree.split_above(inspector, 0.2, vec![EditorWindowTabs::Physics]);
         let [game, hierarchy] = tree.split_left(
             game,
             0.2,
@@ -204,7 +210,7 @@ impl egui_dock::TabViewer for EditorTabViewer<'_> {
                     shortcircuit_entity: None,
                     extra_state: &mut (),
                 }
-                .show_with_filter::<Without<Observer>, _>(ui, filter);
+                .show_with_filter::<() ,_>(ui, filter);
                 if selected {
                     *self.selection = InspectorSelection::Entities;
                 }
@@ -244,6 +250,7 @@ impl egui_dock::TabViewer for EditorTabViewer<'_> {
                     self.world, ui, true,
                 );
             }
+            EditorWindowTabs::Physics => physics_ui(ui, &mut self.world),
         }
     }
 
@@ -275,6 +282,53 @@ fn select_resource(ui: &mut Ui, type_registry: &TypeRegistry, selection: &mut In
             *selection = InspectorSelection::Resource(type_id, resource_name.to_string());
         }
     }
+}
+
+fn physics_ui(ui: &mut Ui, world: &mut World) {
+    ui.heading("Physics World Config");
+
+    egui::Grid::new("physics control grid")
+        .num_columns(2)
+        .spacing([40.0, 4.0])
+        .striped(true)
+        .show(ui, |ui| {
+            let mut physics_time = world.get_resource_mut::<Time<Physics>>().unwrap();
+
+            ui.label("Pause");
+            let mut state = physics_time.is_paused();
+            ui.add(toggle(&mut state));
+            if state != physics_time.is_paused() {
+                match state {
+                    true => physics_time.pause(),
+                    false => physics_time.unpause(),
+                }
+            }
+            ui.end_row();
+
+            ui.label("Timestamp");
+            ui.label(format!("{:?}", physics_time.elapsed()));
+            ui.end_row();
+
+            ui.label("Relative speed");
+            let mut rel_time = physics_time.relative_speed();
+            ui.add(egui::DragValue::new(&mut rel_time).speed(0.01));
+            physics_time.set_relative_speed(rel_time);
+            ui.end_row();
+
+            let (gizmos_config, physics_gizmos) = world
+                .get_resource_mut::<GizmoConfigStore>()
+                .unwrap()
+                .into_inner()
+                .config_mut::<PhysicsGizmos>();
+
+            ui.label("Hide mesh");
+            ui.add(toggle(&mut physics_gizmos.hide_meshes));
+            ui.end_row();
+            
+            ui.label("Show gizmos");
+            ui.add(toggle(&mut gizmos_config.enabled));
+            ui.end_row();
+        });
 }
 
 fn select_asset(
