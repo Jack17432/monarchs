@@ -1,12 +1,10 @@
-use crate::gameplay::input::{Crouch, Jump, Move, PlayerActions, Rotate};
-use crate::gameplay::player::{Player, PlayerCameraTarget};
-use crate::{CameraOrder, DEFAULT_RENDER_LAYER, UI_RENDER_LAYER, VIEW_MODEL_RENDER_LAYER};
+use crate::gameplay::input::{Crouch, Jump, Move, PlayerActions};
+use crate::gameplay::player::Player;
+use crate::gameplay::player::inventory::Holding;
 use avian3d::prelude::*;
 use bevy::prelude::*;
-use bevy::render::view::RenderLayers;
 use bevy_enhanced_input::prelude::*;
 use bevy_inspector_egui::prelude::*;
-use std::f32::consts::FRAC_PI_2;
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Stance>()
@@ -15,20 +13,14 @@ pub(super) fn plugin(app: &mut App) {
         .register_type::<CrouchModifier>()
         .register_type::<JumpImpulse>();
 
-    app.add_observer(spawn_player_camera)
-        .add_observer(move_camera_and_player)
-        .add_observer(apply_player_movement)
+    app.add_observer(apply_player_movement)
         .add_observer(apply_player_jump);
 
     app.add_systems(
         Update,
         (
             check_grounded,
-            (
-                sync_camera_to_player_transform,
-                apply_player_stance,
-                apply_player_movement_damping,
-            ),
+            (apply_player_stance, apply_player_movement_damping),
         )
             .chain(),
     );
@@ -66,11 +58,6 @@ impl PlayerControllerBundle {
         }
     }
 }
-
-#[derive(Default, Component, Reflect, Debug)]
-#[reflect(Component)]
-#[require(Transform, Visibility)]
-pub struct PlayerCamera;
 
 #[derive(Default, Component, Reflect, Debug)]
 #[reflect(Component)]
@@ -129,86 +116,6 @@ fn check_grounded(mut commands: Commands, player: Single<(Entity, &ShapeHits), W
     } else {
         commands.entity(entity).remove::<Grounded>();
     }
-}
-
-fn spawn_player_camera(_trigger: Trigger<OnAdd, PlayerCameraTarget>, mut commands: Commands) {
-    commands
-        .spawn((
-            Name::new("Camera Player"),
-            PlayerCamera,
-            Transform::default().looking_at(Vec3::X, Vec3::Y),
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Name::new("Camera World"),
-                Camera3d::default(),
-                Camera {
-                    order: CameraOrder::World.into(),
-                    ..default()
-                },
-                RenderLayers::layer(DEFAULT_RENDER_LAYER),
-            ));
-
-            parent.spawn((
-                Name::new("Camera ViewModel"),
-                Camera3d::default(),
-                Camera {
-                    order: CameraOrder::ViewModel.into(),
-                    ..default()
-                },
-                RenderLayers::layer(VIEW_MODEL_RENDER_LAYER),
-            ));
-        });
-}
-
-fn move_camera_and_player(
-    trigger: Trigger<Fired<Rotate>>,
-    mut camera_transform: Single<&mut Transform, With<PlayerCamera>>,
-    mut player_transform: Single<&mut Transform, (With<Player>, Without<PlayerCamera>)>,
-) {
-    let delta = trigger.value;
-    if delta != Vec2::ZERO {
-        let delta_yaw = delta.x;
-        let delta_pitch = delta.y;
-
-        let (yaw, pitch, roll) = camera_transform.rotation.to_euler(EulerRot::YXZ);
-        let yaw = yaw + delta_yaw;
-
-        const PITCH_LIMIT: f32 = FRAC_PI_2 - 0.01;
-        let pitch = (pitch + delta_pitch).clamp(-PITCH_LIMIT, PITCH_LIMIT);
-
-        camera_transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
-        player_transform.rotation = Quat::from_rotation_y(yaw);
-    }
-}
-
-fn sync_camera_to_player_transform(
-    mut player_camera: Single<
-        &mut Transform,
-        (
-            With<PlayerCamera>,
-            Without<Player>,
-            Without<PlayerCameraTarget>,
-        ),
-    >,
-    player: Single<
-        &Transform,
-        (
-            With<Player>,
-            Without<PlayerCamera>,
-            Without<PlayerCameraTarget>,
-        ),
-    >,
-    player_camera_target: Single<
-        &Transform,
-        (
-            With<PlayerCameraTarget>,
-            Without<Player>,
-            Without<PlayerCamera>,
-        ),
-    >,
-) {
-    player_camera.translation = player.translation + player_camera_target.translation;
 }
 
 fn apply_player_movement_damping(

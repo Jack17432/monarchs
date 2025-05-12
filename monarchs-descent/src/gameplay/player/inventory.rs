@@ -6,11 +6,17 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
+    app.register_type::<Holding>();
+
     app.add_observer(open_inventory)
         .add_observer(close_inventory);
 
     app.add_systems(OnEnter(GameState::Inventory), show_inventory);
 }
+
+#[derive(Component, Debug, Reflect)]
+#[reflect(Component)]
+pub(super) struct Holding(pub Entity);
 
 fn open_inventory(
     trigger: Trigger<Started<OpenInventory>>,
