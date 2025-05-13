@@ -10,11 +10,11 @@ use bevy::reflect::TypeRegistry;
 use bevy::render::camera::Viewport;
 use bevy::window::PrimaryWindow;
 use bevy_egui::egui::{Ui, WidgetText};
-use bevy_egui::{egui, EguiContext, EguiContextPass, EguiContextSettings};
+use bevy_egui::{EguiContext, EguiContextPass, EguiContextSettings, egui};
 use bevy_enhanced_input::actions::Actions;
 use bevy_inspector_egui::bevy_inspector::hierarchy::{Hierarchy, SelectedEntities};
 use bevy_inspector_egui::bevy_inspector::{
-    ui_for_entities_shared_components, ui_for_entity_with_children, Filter,
+    Filter, ui_for_entities_shared_components, ui_for_entity_with_children,
 };
 use egui_dock::{DockArea, DockState, NodeIndex, Style};
 use std::any::TypeId;
@@ -210,7 +210,7 @@ impl egui_dock::TabViewer for EditorTabViewer<'_> {
                     shortcircuit_entity: None,
                     extra_state: &mut (),
                 }
-                .show_with_filter::<() ,_>(ui, filter);
+                .show_with_filter::<Without<Observer>, _>(ui, filter);
                 if selected {
                     *self.selection = InspectorSelection::Entities;
                 }
@@ -324,7 +324,7 @@ fn physics_ui(ui: &mut Ui, world: &mut World) {
             ui.label("Hide mesh");
             ui.add(toggle(&mut physics_gizmos.hide_meshes));
             ui.end_row();
-            
+
             ui.label("Show gizmos");
             ui.add(toggle(&mut gizmos_config.enabled));
             ui.end_row();
