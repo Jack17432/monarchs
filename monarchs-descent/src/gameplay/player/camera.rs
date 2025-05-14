@@ -1,15 +1,16 @@
 use crate::gameplay::input::Rotate;
 use crate::gameplay::player::Player;
-use crate::gameplay::player::inventory::Holding;
 use crate::{CameraOrder, DEFAULT_RENDER_LAYER, VIEW_MODEL_RENDER_LAYER};
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy_enhanced_input::events::Fired;
 use std::f32::consts::FRAC_PI_2;
+use crate::gameplay::items::inventory::{Equipped, EquippedItem};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_observer(move_camera_with_look)
-        .add_observer(spawn_player_camera);
+        .add_observer(spawn_player_camera)
+        .add_observer(swap_held_item);
 
     app.add_systems(Update, sync_camera_to_player_transform);
 }
@@ -102,3 +103,14 @@ pub fn sync_camera_to_player_transform(
 #[derive(Default, Component, Debug, Reflect)]
 #[reflect(Component)]
 pub struct PlayerCameraTarget;
+
+fn swap_held_item(
+    mut commands: Commands,
+    trigger: Trigger<Changed<EquippedItem>>,
+    player: Single<Entity, With<Player>>,
+    view_model: Single<(Entity, &mut Children), With<PlayerCamera>>,
+    
+) {
+    let (view_model_entity, children) = view_model.into_inner();
+    if children.contains()
+}

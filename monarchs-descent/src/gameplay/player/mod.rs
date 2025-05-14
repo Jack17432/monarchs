@@ -4,8 +4,8 @@ mod crosshair;
 mod interact;
 mod inventory;
 
-use crate::gameplay::items::inventory::Inventory;
 use crate::gameplay::items::Item;
+use crate::gameplay::items::inventory::{EquippedItem, Inventory};
 use crate::gameplay::player::controller::PlayerControllerBundle;
 use crate::gameplay::player::interact::InteractionRange;
 use crate::gameplay::player::inventory::Holding;
@@ -29,6 +29,18 @@ pub(super) fn plugin(app: &mut App) {
 pub struct Player;
 
 fn spawn_test_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let gun_handle =
+        asset_server.load(GltfAssetLabel::Scene(0).from_asset("weapons/basic_gun.glb"));
+    
+    let gun = commands.spawn((
+        Name::new("gun"),
+        Transform::from_xyz(5.0, 10.0, 0.0),
+        SceneRoot(gun_handle),
+        ColliderConstructorHierarchy::new(ConvexHullFromMesh),
+        RigidBody::Dynamic,
+        Item,
+    )).id();
+    
     let player = commands
         .spawn((
             Name::new("Player"),
@@ -40,6 +52,7 @@ fn spawn_test_player(mut commands: Commands, asset_server: Res<AssetServer>) {
                 Vec3::Y * 0.5,
             )),
             InteractionRange(5.0),
+            EquippedItem(Some(gun)),
             Inventory::new(30),
         ))
         .with_children(|parent| {

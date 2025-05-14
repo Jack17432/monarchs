@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
-    app.register_type::<Inventory>().register_type::<ItemOf>();
+    app.register_type::<Inventory>().register_type::<EquippedItem>();
 }
 
 #[derive(Component, Debug, Reflect)]
@@ -55,4 +55,8 @@ impl Inventory {
 
 #[derive(Component, Debug, Reflect)]
 #[reflect(Component)]
-pub struct ItemOf(pub Entity);
+pub struct EquippedItem(pub Option<Entity>);
+
+#[derive(Component, Debug, Reflect)]
+#[reflect(Component)]
+pub struct Equipped;

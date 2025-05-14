@@ -1,6 +1,6 @@
 use crate::gameplay::input::Interact;
+use crate::gameplay::items::inventory::{Inventory};
 use crate::gameplay::items::Item;
-use crate::gameplay::items::inventory::{Inventory, ItemOf};
 use crate::gameplay::player::Player;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::Started;
@@ -18,7 +18,7 @@ pub(super) struct InteractionRange(pub f32);
 fn simple_pickup(
     _trigger: Trigger<Started<Interact>>,
     player: Single<(Entity, &Transform, &InteractionRange, &mut Inventory), With<Player>>,
-    items: Query<(Entity, &Transform, &Item), Without<ItemOf>>,
+    items: Query<(Entity, &Transform, &Item)>,
     mut commands: Commands,
 ) {
     let (player, player_transform, range, mut inventory) = player.into_inner();
@@ -27,8 +27,6 @@ fn simple_pickup(
             if inventory.insert_item(item).is_err() {
                 return;
             };
-
-            commands.entity(player).insert(ItemOf(player));
         }
     })
 }
